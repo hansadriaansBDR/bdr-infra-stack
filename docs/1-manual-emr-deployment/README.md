@@ -118,6 +118,50 @@ In this step we explore the second option, since we do not have access to the cl
 
 In order to get more insights into what is going on during the run time of a job, and to allow for running jobs from your workstation, we will require remote access to the cluster. In this section, we will configure an OpenVPN instance to provide you VPN access to the EC2 instances in the cluster.
 
+## Configuring the OpenVPN instance
+
+1. Navigate to "EC2" and click "Launch Instance".
+2. Select the OpenVPN Acces Server **Bring Your Own License** Amazon Machine Image (AMI), which includes 2 free connections suitable for testing purposes. ![Select OpenVPN AMI](resources/create_openvpn_1.png "Select OpenVPN AMI")
+3. Select t2.micro as instance type. ![Select t2.micro Instance Type](resources/create_openvpn_2.png "Select t2.micro Instance Type")
+4. Select your VPC, the *public* subnet, enable auto-assign public IP, and check "Protect against accidental termination". ![Configure Instance Details](resources/create_openvpn_3a.png "Configure Instance Details")
+5. On the same page, paste the following User Data. This automates the configuration of the OpenVPN access server on the instance. Make sure you include the last comment so the restart command also gets executed.
+```bash
+#!/bin/bash
+admin_user=openvpn
+reroute_gw=0
+reroute_dns=1
+apt-get update && apt-get install -y awscli,
+/usr/local/openvpn_as/bin/ovpn-init --ec2 --batch
+/bin/sleep 5 # Wait for OpenVPN Start
+/usr/local/openvpn_as/scripts/sacli status
+/usr/local/openvpn_as/scripts/sacli --key vpn.server.google_auth.enable --value true ConfigPut
+/usr/local/openvpn_as/scripts/confdba -mk vpn.server.group_pool.0 -v 172.27.240.0/20 # Note: These are NAT-ed ip addresses (openvpnclient to openvpnserver communication), they are not claimed in our VPC
+/usr/local/openvpn_as/scripts/confdba -mk vpn.daemon.0.client.netmask_bits -v 20
+/usr/local/openvpn_as/scripts/confdba -mk vpn.daemon.0.client.network -v 172.27.224.0 # Note: These are NAT-ed ip addresses (openvpnclient to openvpnserver communication), they are not claimed in our VPC
+/usr/local/openvpn_as/scripts/confdba -mk vpn.daemon.0.listen.ip_address -v all
+/usr/local/openvpn_as/scripts/confdba -mk vpn.daemon.0.server.ip_address -v all
+/usr/local/openvpn_as/scripts/confdba -mk cs.https.ip_address -v all
+/usr/local/openvpn_as/scripts/confdba -mk admin_ui.https.ip_address -v all
+/usr/local/openvpn_as/scripts/confdba -mk vpn.server.port_share.service -v client
+echo "openvpn:*2016ManualEmrDeploymentRemoteAccess" | chpasswd
+/etc/init.d/openvpnas restart
+# A newline should be after the last line, thus this comment to enforce it.
+```
+![Insert User Data](resources/create_openvpn_3b.png "Insert User Data")
+6. Skip the "Add Storage" settings / keep the defaults.
+7. Tag the instance with "OpenVPN-dev-<name>" with your name substituted for <name>. This makes it easier to find the instance in the instance list later on. ![Tag Instance](resources/create_openvpn_5.png "Tag Instance")
+8. Use the default security groups. ![Configure Security Groups](resources/create_openvpn_6.png "Configure Security Groups")
+9. Finally, create the instance, and select your key pair so you will be able to access it in case automatic configuration fails. ![Launch Instance](resources/create_openvpn_7.png "Launch Instance")
+10. When the instance is correctly provisioned you can browse to https://<your_public_dns> , which can be retrieved by selecting your instance in "EC2"->"Instances" , and pressing the "Connect" button.
+
+#### Troubleshooting
+
+In case automatic provisioning fails, login to the instance using SSH with (or use PuTTY): ssh -i "<your key pair locally stored>" openvpnas@<your_public_dns>. If the instance is not provisioned fully you should get a configuration prompt of OpenVPN immediately. You can use the configuration as defined at the top of the user data script in there manually, or exit the script CTRL+C and then manually execute all the steps from the user data script like shown below.
+
+## Connecting to your VPC using OpenVPN
+
+
+
 
 
 * OpenVPN
