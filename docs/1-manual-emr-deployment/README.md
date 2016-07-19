@@ -160,21 +160,68 @@ In case automatic provisioning fails, login to the instance using SSH with (or u
 
 ## Connecting to your VPC using OpenVPN
 
+1. Navigate to "https://your_public_dns" , and select "Login" from the dropdown box. Enter the credentials (openvpn ; *2016ManualEmrDeploymentRemoteAccess), and login.
+2. Since it is the first time logging in you still have to configure Google Authenticator for 2FA. Scan the barcode with the app, and press "I have scanned the code".
+3. After logging in again, download the OpenVPN Connect client application and install it on your machine.
+4. Download the connection profile for yourself "Yourself (user-locked profile)".
+5. In the client, select "Import"->"From local file", and select the .ovpn profile.
+6. Then select "public ip/dns"->"Connect as openvpn", insert your credentials again, including the code on your Google Authenticator app.
+7. When successfully connected, all DNS lookups are routed through the VPN connection. This means you should be able to resolve "nslookup ...internal DNS of your NAT...". In addition you should be able to traceroute/tracert ...internal ip of your NAT or OpenVPN instance.... If you execute ipconfig/ifconfig you should also see assigned a 172.27.224.0/20 IP to your workstation.
+
+Note that it is perfectly possible to add multiple users to the OpenVPN server and each user having their own login credentials/profile. This would require a different AMI based on the number of users you expect, to conform to the OpenVPN license. Configuring multiple users is out of scope of this guide. This is, however, very easily done through an Admin UI (which we now disabled).
 
 
+#### Questions
 
 
-* OpenVPN
-* ELB/proxy alternative
+<details>
+  <summary>1. When connected to your VPC using OpenVPN, will http:// connections be secure, or would you require https:// ?</summary>
+  All traffic between your workstation and the VPC is encrypted by default, since OpenVPN uses SSL/TLS VPN. So even if you are using http:// to an instance in the VPC, the underlying connection is still encrypted.
+</details>
+<details>
+  <summary>2. What IP address will appear in the server access logs of an instance when you connect to it using its private IP?</summary>
+  The private IP of the OpenVPN instance 10.0.0.XXX. The way routing works is that the OpenVPN instance is dual-homed (both in 10.0.0.0/24 and 172.27.224.0/20), and it functions as a NAT from 172.27.224.0/20 to 10.0.0.0/16). The 172.27.224.0/20 IP address assigned to your machine is solely used to allow routing of traffic between your workstation and the OpenVPN instance. If multiple users are connected to the same OpenVPN instance, they all get a unique IP in the 172.27.224.0/20 range, but by default they will not be able to communicate with each other (this can be enabled). The 172.27.224.0/20 IP range is also not getting used within the VPC, so in theory you would be able to create subnets in the VPC using the same IP range as used by VPN clients.
+</details>
+
+<details>
+  <summary>3. Will you be able to SSH to the instances in the EMR cluster?</summary>
+  No. The ElasticMapReduce-Master-Private and ElasticMapReduce-Slave-Private security groups do not allow connections on port TCP 22. We will enable this in the next section.
+</details>
 
 
-### EMR console
+## Enabling access to the EMR instances when using VPN
+In this section we are going to allow the users that connect through OpenVPN to connect to both the native Hadoop YARN/Spark management interfaces, as well as connect to SSH, and submit jobs.
+Because we are solely using security groups for firewalling (see note 2 for recommendations), we can suffice by providing access in the security groups for the Master/Core/Task instances only.
 
 
+1. Create a new security group called ElasticMapReduce-Access by going to "VPC"->"Security Groups"->"Create Security Group" after filtering on your VPC. Any instance that is in this security group will be granted access to the cluster. ![Create Security Group](resources/create_security_group.png "Create Security Group")
+2. Add SSH access as well as TCP 8088 (YARN UI), 20888 (YARN APP PROXY), 18080 (YARN APP PROXY), 8020 (HDFS endpoint), 8032 (YARN app endpoint) to ElasticMapReduce-Master-Private, with Source the ElasticMapReduce-Access security group.
+3. Add SSH access as well as TCP 8042 (YARN UI), 50010 (HDFS endpoint) to ElasticMapReduce-Slave-Private, with Source the ElasticMapReduce-Access security group.
+4. Go to "EC2"->"Instances", select your OpenVPN instance and select "Actions"->"Networking"->"Change Security Groups". Tick the ElasticMapReduce-Access group. Since all VPN traffic is NATed through the OpenVPN instance, firewalling/access for VPN users should be applied to the OpenVPN instance. ![Attach Security Group](resources/attach_security_group.png "Attach Security Group")
+5. Check that you have access. http://your_master_instance_ip:8088 should show you the YARN Management page. You should be able to navigate and also inspect Nodes (which use TCP 8042 in the slave security group). ![YARN Management](resources/yarn_management.png "YARN Management")
+6. (Optional) When running a job through the EMR step interface it should also appear on the YARN management page. You can track progress by clicking on the job, which will redirect you to the Spark Application monitoring UI as long as the job is active.
 
+**Note:** For data lakes storing highly confidential data, it is a good idea to not allow submission of jobs from the workstation and/or Spark shell access. A separate notebook server could be configured in the private subnet, which data scientists have to connect to in order to perform data science tasks on the data. This way, all data stays within the cluster and is only accessible through a notebook interface hosted in the same VPC itself.
+**Note 2:** We only have configured security groups for firewalling. An additional security measure for production systems would be to configure the network ACLs as well. In addition, local OS-level firewalls could be configured for highly confidential data.
+
+## Running a job on the cluster from your workstation
+
+1. Make sure you have Spark installed locally by extracting it somewhere in a location you remember (+ install Java locally). http://d3kbcqa49mib13.cloudfront.net/spark-1.6.2-bin-hadoop2.6.tgz
+2. In order to connect to the cluster, which is running in YARN mode, we will require the Hadoop configuration files from the cluster to be downloaded to the workstation. ``mkdir yarn-conf && scp -i "your key pair" ec2-user@master_private_ip:/etc/hadoop/conf/* yarn-conf/``
+3.
+```YARN_CONF_DIR=/Users/stefanvanwouw/spark-1.6.2-bin-hadoop2.6/yarn-conf/ HADOOP_USER_NAME=hadoop ./bin/spark-submit --master yarn --deploy-mode cluster --class org.apache.spark.examples.SparkPi ./lib/spark-examples-1.6.2-hadoop2.6.0.jar 10```
+```YARN_CONF_DIR=/Users/stefanvanwouw/spark-1.6.2-bin-hadoop2.6/yarn-conf/ HADOOP_USER_NAME=hadoop ./bin/spark-shell --master yarn --deploy-mode client```
 ### Scaling up/down
 
 ### Troubleshooting
 
-# Running your custom job
+# Wrap-up
+In this guide we have configured an EMR cluster inside a VPC, and allowed remote access using OpenVPN.
+
+To prevent unnecessary costs, please make sure that:
+
+1. You terminate the EMR cluster.
+2. You terminate the OpenVPN instance.
+3. You terminate the NAT instance.
+4. You remove the VPC.
 
