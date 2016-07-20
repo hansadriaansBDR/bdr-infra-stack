@@ -267,18 +267,53 @@ service bind9 restart
 ```YARN_CONF_DIR=<SPARK_HOME>/yarn-conf/ HADOOP_USER_NAME=hadoop SPARK_PUBLIC_DNS=<your private ip on VPN> SPARK_LOCAL_IP=<your private ip on VPN e.g. 172.27.232.2> <SPARK_HOME>/bin/spark-shell --master yarn --deploy-mode client```
 
 
-You can now work in the Spark shell and interactively query the cluster.
+You can now work in the Spark shell and interactively query the cluster. You can monitor the Spark jobs getting launched at http://localhost:4040. You will also immediately encounter a downside to working remotely like this, the interactive shell takes a while to start, because everytime the whole 200MB Spark jar is uploaded over The Internet to HDFS in AWS. Using a notebook server that is hosted in the same data centre is preferred for data security, and bandwidth/data transfer cost reasons.
 
 #### Questions
+<details>
+  <summary>1. With the new bi-directional routing setup, will instances in the public subnet be able to route to VPN clients?</summary>
+  No, with OpenVPN being the exception. All traffic needs to be routed through the OpenVPN instance, but we only configured this route for the private subnet, not for the public subnet.
+</details>
+<details>
+  <summary>2. Why do desperately want to route DNS traffic through the cluster?</summary>
+  Otherwise, local DNS names that are resolvable in the cluster, are not resolvable on the workstation. Many actions depend on the DNS names (redirects of management consoles, and connection forwards in Spark-shell/submit).
+</details>
+<details>
+  <summary>3. What would be the major downsides of using the cluster interactively like this?</summary>
+  The whole 172.27.224.0/20 range is no longer usable in the cluster VPC. Although data-transfer into the cloud is free, data transfer to the outside world is not. By using your workstation as a Spark driver, more traffic is outbound from the cluster. Uploading jars from your workstation takes a long time, hogging the bandwidth of the entire on-premise network. Uploading to S3 once, and re-using is the better option, combined with hosting a notebook server in the cloud. By using a workstation as the driver, more data transfers out of the cluster than might be allowed to conform with security requirements.
+</details>
+
+# Open Exercises
+
+In this guide we have configured an EMR cluster inside a VPC, and allowed remote access using OpenVPN.
+Please find some additional open/optional exercises below. If you rather want to learn about how to automate the deployment, please visit the [Automatic EMR Deployment Guide](../2-automatic-emr-deployment/README.md).
 
 
+#### Scaling up/down
+During the guide we assumed we always have 2 Core nodes available to schedule job work on. It might be that you want to schedule more work at the same time, or have a very heavy job that requires more resources. You can experiment with adding/removing nodes to/from the cluster by going to "EMR", selecting your cluster and clicking "Resize". **Please make sure you do not create more than 2 additional nodes to prevent us from hitting the instance limit (terminated nodes keep counting to the limit for about 2 hours). Also please scale back to the original size if you no longer need it to reduce costs.**
+#### Tightening Security with nACLs
+The current setup has only 2 layers of security, namely the routing table and the security groups. We can add up to 4 layers of security by also enabling OS firewalling (iptables), and subnet layer firewalling using network access control lists (nACLs). OS level firewalling might only be useful for data lakes with very high confidential data, and is usually overkill. A best practice, however, is to use both security groups and nACLs by default.
+In this exercise you will be tightening security by adding nACLs to both the public and private subnets. Whereas security groups firewall at the network interface level, nACLs firewall at the subnet level. Whereas security groups are stateful, nACLs are stateless. This means that you also need to open inbound [ephemeral ports](https://en.wikipedia.org/wiki/Ephemeral_port) on a subnet if you want outbound TCP traffic to be possible. A security group does not require this since it automatically allows traffic on inbound ephemeral ports if the connection was initiated from the interface the security group is attached to.
 
-### Scaling up/down
 
+Use the following for extra guidance in setting up nACLs http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_ACLs.html
+Suggested steps to take:
+1. Add a "Public Subnet ACL" at "VPC"->"Network ACLs" (after filtering on your VPC). Associate it with the Public subnet.
+2. Add a "Private Subnet ACL" at "VPC"->"Network ACLs" (after filtering on your VPC). Associate it with the Private subnet.
+3. To have it less confusing, allow outbound traffic TCP by default on both subnet ACLs. The routing table takes care of outbound traffic only being able to travel through certain paths.
+3. Open all TCP inbound on the public subnet from the private subnet to allow [ephemeral ports used by Linux and by Spark executor](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_ACLs.html#VPC_ACLs_Ephemeral_Ports) , as well as internet access from the private subnet.
+4. Open [ephemeral ports](http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/VPC_ACLs.html#VPC_ACLs_Ephemeral_Ports) TCP inbound on the private subnet to allow connections from the cluster to The Internet (0.0.0.0/0) and the VPN client drivers.
+5. Open the same ports added to the security groups for YARN/HDFS etc. inbound private subnet with source the public subnet OR the 172.27.224.0/20 range. Which one would be required here? How does VPC routing/subnet acl work with the OpenVPN routing? Tricky networking starts here.
+6. Make it work...even when you remove allowing all outbound TCP traffic.
+
+#### Connecting a local Notebook
+If you have a local Jupyter or Zeppelin notebook. Try to build a kernel that connects  to the cluster.
+
+Suggested read: http://www.bigdatarepublic.nl/configuring-jupyter-for-pyspark-1-5-2-with-pyenvvirtualenv/
+Combine this with the environment options and (py)spark-shell commandline arguments found in this guide.
 
 # Wrap-up
-In this guide we have configured an EMR cluster inside a VPC, and allowed remote access using OpenVPN.
-
+When you are done with all activities we would like you to shutdown any resources you might have created.
 To prevent unnecessary costs, please make sure that:
 
 1. You terminate the EMR cluster.
