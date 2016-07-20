@@ -3,8 +3,9 @@
 In this guide you will learn:
 
 * How to use Amazon managed services to build a data lake.
-* How to remotely access the data lake.
 * How to run and monitor jobs in the data lake.
+* How to remotely access the data lake.
+* How to run connect to the cluster interactively (Spark Shell/Notebook).
 
 **We assume you will provision all resources in the EU Ireland data center. Shorthand for this is 'eu-west-1'**.
 
@@ -319,5 +320,6 @@ To prevent unnecessary costs, please make sure that:
 1. You terminate the EMR cluster.
 2. You terminate the OpenVPN instance.
 3. You terminate the NAT instance.
+4. Release the elastic IP associated to the NAT instance (you can check it when terminating the NAT instance or go to "EC2"->Elastic IPs".
 4. You remove the VPC.
 
