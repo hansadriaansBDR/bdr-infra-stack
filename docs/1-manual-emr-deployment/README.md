@@ -19,7 +19,7 @@ For accessing the AWS instances through SSH, an SSH key pair is required. A firs
 
 1. From the AWS Console select "EC2", and go to the key pairs section.
 
-2. Create a Key Pair called "dev-<name>" where <name> is substituted with your name.
+2. Create a Key Pair called "dev-{name}" where {name} is substituted with your name.
 
 3. Save the .pem.txt file on your local file system. This is your private key, do not lose it, or you will not be able to access the instances you create.
 
