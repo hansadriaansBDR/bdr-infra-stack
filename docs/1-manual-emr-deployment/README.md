@@ -150,10 +150,10 @@ echo "openvpn:*2016ManualEmrDeploymentRemoteAccess" | chpasswd
 ```
 ![Insert User Data](resources/create_openvpn_3b.png "Insert User Data")
 6. Skip the "Add Storage" settings / keep the defaults.
-7. Tag the instance with "OpenVPN-dev-<name>" with your name substituted for <name>. This makes it easier to find the instance in the instance list later on. ![Tag Instance](resources/create_openvpn_5.png "Tag Instance")
+7. Tag the instance with "OpenVPN-dev-{name}" with your name substituted for {name}. This makes it easier to find the instance in the instance list later on. ![Tag Instance](resources/create_openvpn_5.png "Tag Instance")
 8. Use the default security groups. ![Configure Security Groups](resources/create_openvpn_6.png "Configure Security Groups")
 9. Finally, create the instance, and select your key pair so you will be able to access it in case automatic configuration fails. ![Launch Instance](resources/create_openvpn_7.png "Launch Instance")
-10. When the instance is correctly provisioned you can browse to https://<your_public_dns> , which can be retrieved by selecting your instance in "EC2"->"Instances" , and pressing the "Connect" button.
+10. When the instance is correctly provisioned you can browse to https://{your_public_dns} , which can be retrieved by selecting your instance in "EC2"->"Instances" , and pressing the "Connect" button.
 
 #### Troubleshooting
 
