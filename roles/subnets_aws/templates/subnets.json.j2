@@ -1,0 +1,26 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Resources" : {
+        {% for subnet_key, subnet in subnets.items() %}
+
+        "Subnet{{ subnet_key }}" : {
+         "Type" : "AWS::EC2::Subnet",
+         "Properties" : {
+            "VpcId" : "{{ network_id }}",
+            "CidrBlock" : "{{ subnet['cidr'] }}",
+            "Tags" : [ { "Key" : "Name", "Value" : "{{ subnet['name'] }}" } ]
+         }
+        },
+        "SubnetAssociation{{ subnet_key }}" : {
+          "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+                "Properties" : {
+                   "SubnetId" : { "Ref" : "Subnet{{ subnet_key }}" },
+                   "RouteTableId" : "{{ routing[subnet['routing_association']]['id'] }}"
+                }
+             }
+
+        {% if not loop.last %},{% endif %}
+        {% endfor %}
+
+    }
+}

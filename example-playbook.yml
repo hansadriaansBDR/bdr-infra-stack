@@ -3,3 +3,4 @@
   roles:
     - network_aws
     - routing_aws
+    - subnets_aws

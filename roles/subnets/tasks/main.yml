@@ -1,0 +1,11 @@
+---
+- assert:
+    that:
+      - "subnets is defined"
+
+- assert:
+    that:
+      - "item.value.name is defined" # Subnet should have a name.
+      - "item.value.cidr is defined" # Subnet should have a cidr.
+      - "item.value.routing_association is defined" # Subnet should be associated with an entry from the routing table.
+  with_dict: subnets

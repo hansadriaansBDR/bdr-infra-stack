@@ -15,3 +15,17 @@ routing:
       s3:
         type: service_endpoint
         dest: "com.amazonaws.eu-west-1.s3"
+
+subnets:
+  private:
+    name: "Private Subnet"
+    cidr: "10.0.1.0/24"
+    routing_association: "private"
+    firewall_inbound: {}
+    firewall_outbound: {}
+  public:
+    name: "Public Subnet"
+    cidr: "10.0.0.0/24"
+    routing_association: "public"
+    firewall_inbound: {}
+    firewall_outbound: {}

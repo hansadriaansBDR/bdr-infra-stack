@@ -12,11 +12,11 @@
     template: "{{ tmp_dir }}/vpc.json"
     tags:
       stack: "{{ stack }}"
-  register: network_aws_vpc
+  register: network_aws_stack
 
 - name: Show stack outputs
-  debug: msg="My stack outputs are {{network_aws_vpc.stack_outputs}}"
+  debug: msg="My stack outputs are {{network_aws_stack.stack_outputs}}"
 
 - name: Define Network ID
   set_fact:
-    network_id: "{{ network_aws_vpc.stack_outputs.vpc }}"
+    network_id: "{{ network_aws_stack.stack_outputs.vpc }}"

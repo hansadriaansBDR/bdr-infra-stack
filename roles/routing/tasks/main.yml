@@ -2,3 +2,8 @@
 - assert:
     that:
       - "routing is defined"
+
+- assert:
+    that:
+      - "item.value.name is defined" # Routing table should have a name.
+  with_dict: routing

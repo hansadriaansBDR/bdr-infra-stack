@@ -76,5 +76,16 @@
             {% if not loop.last %},{% endif %}
         {% endfor %}
 
+    },
+     "Outputs" : {
+      {% for table_key, table in routing.items() %}
+      "{{ table_key }}" : {
+        "Description" : "{{ table['name'] }} ID",
+        "Value" : {
+          "Ref" : "RouteTable{{ table_key }}"
+        }
+      }
+      {% if not loop.last %},{% endif %}
+      {% endfor %}
     }
 }

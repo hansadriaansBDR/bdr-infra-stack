@@ -12,3 +12,20 @@
     template: "{{ tmp_dir }}/routing.json"
     tags:
       stack: "{{ stack }}"
+  register: routing_aws_stack
+
+- name: Show stack outputs
+  debug: msg="My stack outputs are {{routing_aws_stack.stack_outputs}}"
+
+- name: Add route table IDs to routing (1/3)
+  set_fact:
+    tmp_routing: "{{ routing }}"
+
+- name: Add route table IDs to routing (2/3)
+  set_fact:
+    tmp_routing: "{{ tmp_routing | combine({ item.key : item.value | combine({'id': routing_aws_stack.stack_outputs[item.key] }) }) }}"
+  with_dict: routing
+
+- name: Add route table IDs to routing (3/3)
+  set_fact:
+    routing: "{{ tmp_routing }}"

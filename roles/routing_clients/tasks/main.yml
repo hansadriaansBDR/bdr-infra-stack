@@ -1,0 +1,14 @@
+---
+
+
+- assert:
+    that:
+      - "routing is defined"
+
+- assert:
+    that:
+      - "item.value.id is defined" # Clients of the routing module require the ID of the routing table.
+  with_dict: routing
+
+
+
