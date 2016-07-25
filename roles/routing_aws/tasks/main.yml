@@ -1,0 +1,14 @@
+---
+
+- name: Generate routing template
+  template: src="routing.json.j2" dest="{{ tmp_dir }}/routing.json"
+
+- name: Create routing (route tables, routes, gateways, service/s3 endpoints etc.)
+  cloudformation:
+    stack_name: "{{ stack }}-routing"
+    state: "present"
+    region: "{{ aws_region }}"
+    disable_rollback: true
+    template: "{{ tmp_dir }}/routing.json"
+    tags:
+      stack: "{{ stack }}"

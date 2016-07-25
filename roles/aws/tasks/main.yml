@@ -1,0 +1,6 @@
+---
+
+# Define all variables that should be defined when deploying on AWS.
+- assert:
+    that:
+      - "aws_region is defined"

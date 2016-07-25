@@ -1,0 +1,5 @@
+---
+- hosts: aws_deploy
+  roles:
+    - network_aws
+    - routing_aws

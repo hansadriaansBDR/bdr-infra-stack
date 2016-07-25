@@ -1,0 +1,80 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Mappings" : {
+      "NatRegionMap" : {
+        "us-east-1"      : { "AMI" : "ami-184dc970" }, {# AMI from 2014, update when required #}
+        "us-west-1"      : { "AMI" : "ami-a98396ec" }, {# AMI from 2014, update when required #}
+        "us-west-2"      : { "AMI" : "ami-290f4119" }, {# AMI from 2014, update when required #}
+        "eu-west-1"      : { "AMI" : "ami-a8dd45db" }, {# AMI from 2016, amzn-ami-vpc-nat-hvm-2016.03.3.x86_64-ebs, update when required #}
+        "eu-central-1"   : { "AMI" : "ami-5825cd37" }, {# AMI from 2016, amzn-ami-vpc-nat-hvm-2016.03.3.x86_64-ebs, update when required #}
+        "sa-east-1"      : { "AMI" : "ami-8122969c" }, {# AMI from 2014, update when required #}
+        "ap-southeast-1" : { "AMI" : "ami-6aa38238" }, {# AMI from 2014, update when required #}
+        "ap-southeast-2" : { "AMI" : "ami-893f53b3" }, {# AMI from 2014, update when required #}
+        "ap-northeast-1" : { "AMI" : "ami-27d6e626" }  {# AMI from 2014, update when required #}
+      }
+  },
+  "Resources" : {
+        {% for table_key, table in routing.items() %}
+            {% for route_key, route in table['routes'].items() %}
+
+              {% if route['type'] == 'gateway' %}
+                "InternetGateway{{ table_key }}{{ route_key }}": {
+                    "Type" : "AWS::EC2::InternetGateway",
+                    "Properties" : {
+                    "Tags" : [ {"Key" : "Name", "Value" : "{{ stack }} - Internet Gateway"} ]
+                    }
+                },
+                "Attachment{{ table_key }}{{ route_key }}": {
+                    "Type" : "AWS::EC2::VPCGatewayAttachment",
+                    "Properties" : {
+                        "InternetGatewayId" : {"Ref": "InternetGateway{{ table_key }}{{ route_key }}"},
+                        "VpcId" : "{{ network_id }}"
+                     }
+                },
+              {% elif route['type'] == 'service_endpoint' %}
+                "ServiceEndpoint{{ table_key }}{{ route_key }}": {
+                   "Type" : "AWS::EC2::VPCEndpoint",
+                   "Properties" : {
+                        "PolicyDocument" : {
+                              "Version":"2012-10-17",
+                              "Statement":[{
+                                "Effect":"Allow",
+                                "Principal": "*",
+                                "Action": "*",
+                                "Resource": "*"
+                              }]
+                        },
+                        "RouteTableIds" : [ {"Ref": "RouteTable{{ table_key }}"}],
+                        "ServiceName" : "{{ route['dest'] }}",
+                        "VpcId" : "{{ network_id }}"
+                  }
+                },
+              {% endif %}
+              {% if route['type'] != 'service_endpoint' %}
+                "Route{{table_key}}{{ route_key }}": {
+                   "Type" : "AWS::EC2::Route",
+                   {% if route['type'] == 'gateway' %}
+                   "DependsOn" : "Attachment{{ table_key }}{{ route_key }}",
+                   {% endif %}
+                   "Properties" : {
+                      "RouteTableId" : { "Ref": "RouteTable{{ table_key }}"},
+                      "DestinationCidrBlock" : "{{ route['dest'] }}",
+                      {% if route['type'] == 'gateway' %}
+                      "GatewayId" : {"Ref": "InternetGateway{{ table_key }}{{ route_key }}"}
+                      {% endif %}
+                   }
+                },
+              {% endif %}
+            {% endfor %}
+            "RouteTable{{ table_key }}": {
+               "Type" : "AWS::EC2::RouteTable",
+               "Properties" : {
+                  "VpcId" : "{{ network_id }}",
+                  "Tags" : [ {"Key" : "Name", "Value" : "{{ table['name'] }}"} ]
+               }
+            }
+            {% if not loop.last %},{% endif %}
+        {% endfor %}
+
+    }
+}

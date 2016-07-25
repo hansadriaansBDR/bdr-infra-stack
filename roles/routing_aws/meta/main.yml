@@ -1,0 +1,4 @@
+---
+dependencies:
+  - { role: routing} # Depends on the interface for routing.
+  - { role: aws} # Depends on the AWS region parameters.

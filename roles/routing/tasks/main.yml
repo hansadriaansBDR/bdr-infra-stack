@@ -1,0 +1,4 @@
+---
+- assert:
+    that:
+      - "routing is defined"

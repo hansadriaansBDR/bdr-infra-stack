@@ -1,0 +1,3 @@
+---
+dependencies:
+  - { role: network_clients } # Depends on the ID of the networking infrastructure.

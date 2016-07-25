@@ -1,0 +1,4 @@
+---
+- assert:
+    that:
+      - "network_id is defined"

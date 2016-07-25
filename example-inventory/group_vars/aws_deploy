@@ -1,0 +1,17 @@
+---
+routing:
+  private:
+    name: "Private Route"
+    routes:
+      s3:
+        type: service_endpoint
+        dest: "com.amazonaws.eu-west-1.s3"
+  public:
+    name: "Public Route"
+    routes:
+      internet:
+        type: gateway
+        dest: "0.0.0.0/0"
+      s3:
+        type: service_endpoint
+        dest: "com.amazonaws.eu-west-1.s3"

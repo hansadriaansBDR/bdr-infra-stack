@@ -1,0 +1,22 @@
+---
+
+- name: Generate VPC template
+  template: src="vpc.json.j2" dest="{{ tmp_dir }}/vpc.json"
+
+- name: Create VPC
+  cloudformation:
+    stack_name: "{{ stack }}"
+    state: "present"
+    region: "{{ aws_region }}"
+    disable_rollback: true
+    template: "{{ tmp_dir }}/vpc.json"
+    tags:
+      stack: "{{ stack }}"
+  register: network_aws_vpc
+
+- name: Show stack outputs
+  debug: msg="My stack outputs are {{network_aws_vpc.stack_outputs}}"
+
+- name: Define Network ID
+  set_fact:
+    network_id: "{{ network_aws_vpc.stack_outputs.vpc }}"
