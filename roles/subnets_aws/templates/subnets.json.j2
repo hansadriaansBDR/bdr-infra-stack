@@ -22,5 +22,16 @@
         {% if not loop.last %},{% endif %}
         {% endfor %}
 
+    },
+    "Outputs" : {
+      {% for subnet_key, subnet in subnets.items() %}
+      "{{ subnet_key }}" : {
+        "Description" : "{{ subnet['name'] }} ID",
+        "Value" : {
+          "Ref" : "Subnet{{ subnet_key }}"
+        }
+      }
+      {% if not loop.last %},{% endif %}
+      {% endfor %}
     }
 }

@@ -34,3 +34,26 @@ subnets:
     routing_association: "public"
     firewall_inbound: {}
     firewall_outbound: {}
+
+datalake:
+  release: "emr-4.7.2"
+  name: "{{ stack }}-emr"
+  subnet: "private"
+  applications:
+    - Spark
+    - Hadoop
+    - Hive
+  key_pair: "{{ stack }}"
+  instances:
+    master:
+      count: 1
+      type: m4.large
+      market: 0.264
+      firewall_inbound: {}
+      firewall_outbound: {}
+    worker:
+      count: 2
+      type: m4.large
+      market: 0.264
+      firewall_inbound: {}
+      firewall_outbound: {}

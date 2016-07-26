@@ -1,0 +1,14 @@
+---
+
+
+- assert:
+    that:
+      - "subnets is defined"
+
+- assert:
+    that:
+      - "item.value.id is defined" # Clients of the subnets module require the IDs of the subnets.
+  with_dict: subnets
+
+
+

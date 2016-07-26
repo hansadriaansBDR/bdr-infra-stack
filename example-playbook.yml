@@ -4,4 +4,5 @@
     - network_aws
     - routing_aws
     - subnets_aws
+    - datalake_aws
 

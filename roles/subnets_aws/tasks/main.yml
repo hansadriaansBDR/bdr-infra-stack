@@ -12,3 +12,21 @@
     template: "{{ tmp_dir }}/subnets.json"
     tags:
       stack: "{{ stack }}"
+  register: subnets_aws_stack
+
+- name: Show stack outputs
+  debug: msg="My stack outputs are {{subnets_aws_stack.stack_outputs}}"
+
+
+- name: Add subnet IDs to subnets (1/3)
+  set_fact:
+    tmp_subnets: "{{ subnets }}"
+
+- name: Add subnet IDs to subnets (2/3)
+  set_fact:
+    tmp_subnets: "{{ tmp_routing | combine({ item.key : item.value | combine({'id': subnets_aws_stack.stack_outputs[item.key] }) }) }}"
+  with_dict: subnets
+
+- name: Add subnet IDs to subnets (3/3)
+  set_fact:
+    subnets: "{{ tmp_subnets }}"

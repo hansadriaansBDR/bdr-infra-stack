@@ -1,0 +1,14 @@
+---
+
+- name: Generate datalake (EMR) template
+  template: src="datalake.json.j2" dest="{{ tmp_dir }}/datalake.json"
+
+- name: Create datalake (EMR cluster)
+  cloudformation:
+    stack_name: "{{ stack }}-datalake"
+    state: "present"
+    region: "{{ aws_region }}"
+    disable_rollback: true
+    template: "{{ tmp_dir }}/datalake.json"
+    tags:
+      stack: "{{ stack }}"

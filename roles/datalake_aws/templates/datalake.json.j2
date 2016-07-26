@@ -1,0 +1,50 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Resources": {
+    "EmrCluster": {
+      "Type": "AWS::EMR::Cluster",
+      "Properties": {
+        "Instances": {
+          "MasterInstanceGroup": {
+            "InstanceCount": {{ datalake.instances.master.count }},
+            "InstanceType": "{{ datalake.instances.master.type }}",
+            {% if datalake.instances.master.market is defined %}
+            "Market": "SPOT",
+            "BidPrice": "{{ datalake.instances.master.market }}",
+            {% else %}
+            "Market": "ON_DEMAND",
+            {% endif %}
+            "Name": "Master"
+          },
+          "CoreInstanceGroup": {
+            "InstanceCount": {{ datalake.instances.worker.count }},
+            "InstanceType": "{{ datalake.instances.worker.type }}",
+            {% if datalake.instances.worker.market is defined %}
+            "Market": "SPOT",
+            "BidPrice": "{{ datalake.instances.worker.market }}",
+            {% else %}
+            "Market": "ON_DEMAND",
+            {% endif %}
+            "Name": "Core"
+          },
+          "TerminationProtected": false,
+          "Ec2KeyName": "{{ datalake.key_pair }}",
+          "Ec2SubnetId": "{{ subnets[datalake.subnet].id }}"
+        },
+        "Applications": [
+          {% for application in datalake.applications %}
+          {
+            "Name": "{{ application }}"
+          }
+          {% if not loop.last %},{% endif %}
+          {% endfor %}
+        ],
+        "Name": "{{ datalake.name }}",
+        "JobFlowRole": "EMR_EC2_DefaultRole",
+        "ServiceRole": "EMR_DefaultRole",
+        "ReleaseLabel": "{{ datalake.release }}",
+        "VisibleToAllUsers": true
+      }
+    }
+  }
+}

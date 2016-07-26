@@ -1,0 +1,10 @@
+[aws_ireland]
+aws_ireland ansible_host=localhost ansible_connection=local stack=bdr-prod
+
+
+# Ansible gotcha: although you can define variables per group, they are actually merged per host instead of group. This means that when you have 'localhost' in 2 groups with different values for the same variables, you still have one (non-deterministically defined) value for each unique variable per host.
+# To be able to deploy to multiple environments in the same playbook (let us say, multiple AWS regions or a combination of on-premise and multiple clouds), we need a way to mimic the 'variable per group' feature. We do this by giving localhost an alias (e.g. aws_ireland), equal to the group it is in.
+# This way it is possible to cross-reference between environments , e.g. hostvars['aws_ireland'] contains all variables for the AWS Ireland region, whereas hostvars['on_premise'] contains all info for the on-premise environment.
+# They do not plan to fix this. See also: https://github.com/ansible/ansible/issues/9065
+
+
