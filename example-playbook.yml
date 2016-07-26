@@ -1,6 +1,7 @@
 ---
-- hosts: aws_deploy
+- hosts: aws_ireland
   roles:
     - network_aws
     - routing_aws
     - subnets_aws
+
