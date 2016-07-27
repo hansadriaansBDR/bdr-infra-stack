@@ -1,9 +1,12 @@
 ---
-- assert:
+
+- name: Check required parameters (general)
+  assert:
     that:
       - "subnets is defined"
 
-- assert:
+- name: Check required parameters (subnet specific)
+  assert:
     that:
       - "item.value.name is defined" # Subnet should have a name.
       - "item.value.cidr is defined" # Subnet should have a cidr.

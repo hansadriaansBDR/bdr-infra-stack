@@ -24,7 +24,7 @@
 
 - name: Add subnet IDs to subnets (2/3)
   set_fact:
-    tmp_subnets: "{{ tmp_routing | combine({ item.key : item.value | combine({'id': subnets_aws_stack.stack_outputs[item.key] }) }) }}"
+    tmp_subnets: "{{ tmp_subnets | combine({ item.key : item.value | combine({'id': subnets_aws_stack.stack_outputs[item.key] }) }) }}"
   with_dict: subnets
 
 - name: Add subnet IDs to subnets (3/3)

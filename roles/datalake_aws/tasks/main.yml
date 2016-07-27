@@ -12,3 +12,5 @@
     template: "{{ tmp_dir }}/datalake.json"
     tags:
       stack: "{{ stack }}"
+  register: datalake_aws_stack
+

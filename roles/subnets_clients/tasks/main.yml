@@ -1,11 +1,13 @@
 ---
 
 
-- assert:
+- name: Check required parameters (general)
+  assert:
     that:
       - "subnets is defined"
 
-- assert:
+- name: Check required parameters (subnet IDs)
+  assert:
     that:
       - "item.value.id is defined" # Clients of the subnets module require the IDs of the subnets.
   with_dict: subnets

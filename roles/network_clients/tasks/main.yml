@@ -1,4 +1,5 @@
 ---
-- assert:
+- name: Check required parameters (network ID)
+  assert:
     that:
       - "network_id is defined"

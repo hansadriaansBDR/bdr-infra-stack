@@ -1,9 +1,11 @@
 ---
-- assert:
+- name: Check required parameters (general)
+  assert:
     that:
       - "routing is defined"
 
-- assert:
+- name: Check required parameters (routing table names)
+  assert:
     that:
       - "item.value.name is defined" # Routing table should have a name.
   with_dict: routing

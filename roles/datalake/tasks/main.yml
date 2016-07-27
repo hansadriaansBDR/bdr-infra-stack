@@ -1,5 +1,6 @@
 ---
-- assert:
+- name: Check required parameters (general)
+  assert:
     that:
       - "datalake is defined"
       - "datalake.release is defined"
@@ -11,7 +12,8 @@
       - "datalake.key_pair is defined"
       - "datalake.subnet is defined"
 
-- assert:
+- name: Check required parameters (instance groups)
+  assert:
     that:
       - "item.value.count is defined" # Instance master/worker should have a name.
       - "item.value.type is defined" # Instance master/worker should have a type.

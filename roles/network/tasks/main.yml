@@ -1,5 +1,6 @@
 ---
-- assert:
+- name: Check required parameters (stack, network name, and CIDR)
+  assert:
     that:
       - "stack is defined"
       - "network_name is defined"
