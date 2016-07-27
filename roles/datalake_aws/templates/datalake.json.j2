@@ -1,27 +1,79 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
   "Resources": {
+
+  {% if datalake.firewall is defined %}
+  {% for group_key, group in datalake.firewall.items() %}
+          {% for type in group.keys() | difference(['instance_group']) %}
+          {% for proto, rules in group[type].items() %}
+          {% for rule in rules %}
+          {% set port_split = rule.keys()[0].split('-') %}
+          {% set from_port = '-1' if proto == 'icmp' else port_split[0] %}
+          {% set to_port = '-1' if proto == 'icmp' else port_split[-1] %}
+          {% set src_dest = rule.values()[0] %}
+          {% set sec_type = 'Ingress' if type == 'inbound' else 'Egress' %}
+          {% set src_dest_type = 'Source' if type == 'inbound' else 'Destination' %}
+          "{{ type }}{{ group_key }}{{ proto }}{{ loop.index }}"        : {
+                      "Type" : "AWS::EC2::SecurityGroup{{ sec_type }}",
+                      "Properties" : {
+                          "FromPort" : "{{ from_port  }}",
+                          "IpProtocol" : "{{ proto }}",
+                          "ToPort"     : "{{ to_port }}",
+                          "{{ src_dest_type }}SecurityGroupId" : {
+                              "Fn::GetAtt" : [
+                                  "SecurityGroup{{ src_dest }}",
+                                  "GroupId"
+                              ]
+                          },
+                          "GroupId"               : {
+                              "Fn::GetAtt" : [
+                                  "SecurityGroup{{ group_key }}",
+                                  "GroupId"
+                              ]
+                          }
+                      }
+                  },
+          {% endfor %}
+          {% endfor %}
+          {% endfor %}
+
+
+       "SecurityGroup{{ group_key }}"                            : {
+              "Type" : "AWS::EC2::SecurityGroup",
+              "Properties" : {
+                  "VpcId" : "{{ network_id }}",
+                  "GroupDescription" : "Firewalling for {{ group_key }}",
+                  "Tags"                 : [
+                      {
+                          "Key" : "Name",
+                          "Value" : "SecurityGroup{{ group_key }}"
+                      }
+                  ]
+              }
+          },
+   {% endfor %}
+   {% endif %}
     "EmrCluster": {
       "Type": "AWS::EMR::Cluster",
       "Properties": {
         "Instances": {
           "MasterInstanceGroup": {
-            "InstanceCount": {{ datalake.instances.master.count }},
-            "InstanceType": "{{ datalake.instances.master.type }}",
-            {% if datalake.instances.master.market is defined %}
+            "InstanceCount": {{ datalake.instance_groups.master.count }},
+            "InstanceType": "{{ datalake.instance_groups.master.type }}",
+            {% if datalake.instance_groups.master.market is defined %}
             "Market": "SPOT",
-            "BidPrice": "{{ datalake.instances.master.market }}",
+            "BidPrice": "{{ datalake.instance_groups.master.market }}",
             {% else %}
             "Market": "ON_DEMAND",
             {% endif %}
             "Name": "Master"
           },
           "CoreInstanceGroup": {
-            "InstanceCount": {{ datalake.instances.worker.count }},
-            "InstanceType": "{{ datalake.instances.worker.type }}",
-            {% if datalake.instances.worker.market is defined %}
+            "InstanceCount": {{ datalake.instance_groups.worker.count }},
+            "InstanceType": "{{ datalake.instance_groups.worker.type }}",
+            {% if datalake.instance_groups.worker.market is defined %}
             "Market": "SPOT",
-            "BidPrice": "{{ datalake.instances.worker.market }}",
+            "BidPrice": "{{ datalake.instance_groups.worker.market }}",
             {% else %}
             "Market": "ON_DEMAND",
             {% endif %}
@@ -29,6 +81,17 @@
           },
           "TerminationProtected": false,
           "Ec2KeyName": "{{ datalake.key_pair }}",
+          {% if datalake.firewall is defined %}
+          "EmrManagedMasterSecurityGroup" : {
+                              "Ref" : "SecurityGroupmaster"
+                          },
+          "EmrManagedSlaveSecurityGroup" : {
+                              "Ref" : "SecurityGroupworker"
+                          },
+          "ServiceAccessSecurityGroup" : {
+                              "Ref" : "SecurityGroupservice"
+                          },
+          {% endif %}
           "Ec2SubnetId": "{{ subnets[datalake.subnet].id }}"
         },
         "Applications": [

@@ -5,9 +5,9 @@
       - "datalake.release is defined"
       - "datalake.name is defined"
       - "datalake.applications is defined"
-      - "datalake.instances is defined"
-      - "datalake.instances.master is defined"
-      - "datalake.instances.worker is defined"
+      - "datalake.instance_groups is defined"
+      - "datalake.instance_groups.master is defined"
+      - "datalake.instance_groups.worker is defined"
       - "datalake.key_pair is defined"
       - "datalake.subnet is defined"
 
@@ -15,4 +15,4 @@
     that:
       - "item.value.count is defined" # Instance master/worker should have a name.
       - "item.value.type is defined" # Instance master/worker should have a type.
-  with_dict: datalake.instances
+  with_dict: datalake.instance_groups

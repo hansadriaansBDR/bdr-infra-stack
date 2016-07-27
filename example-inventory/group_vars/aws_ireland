@@ -26,14 +26,16 @@ subnets:
     name: "Private Subnet"
     cidr: "10.0.1.0/24"
     routing_association: "private"
-    firewall_inbound: {}
-    firewall_outbound: {}
+    firewall:
+      inbound: {}
+      outbound: {}
   public:
     name: "Public Subnet"
     cidr: "10.0.0.0/24"
     routing_association: "public"
-    firewall_inbound: {}
-    firewall_outbound: {}
+    firewall:
+      inbound: {}
+      outbound: {}
 
 datalake:
   release: "emr-4.7.2"
@@ -44,16 +46,47 @@ datalake:
     - Hadoop
     - Hive
   key_pair: "{{ stack }}"
-  instances:
+  instance_groups:
     master:
       count: 1
       type: m4.large
       market: 0.264
-      firewall_inbound: {}
-      firewall_outbound: {}
     worker:
       count: 2
       type: m4.large
       market: 0.264
-      firewall_inbound: {}
-      firewall_outbound: {}
+  firewall:
+    master:
+      instance_group: master
+      inbound:
+        tcp:
+          - "0-65535": master
+          - "0-65535": worker
+          - "8443": service
+        icmp:
+          - "0-65535": master
+          - "0-65535": worker
+        udp:
+          - "0-65535": master
+          - "0-65535": worker
+      outbound: {}
+    worker:
+      instance_group: worker
+      inbound:
+        tcp:
+          - "0-65535": master
+          - "0-65535": worker
+          - "8443": service
+        icmp:
+          - "0-65535": master
+          - "0-65535": worker
+        udp:
+          - "0-65535": master
+          - "0-65535": worker
+      outbound: {}
+    service:
+      inbound: {}
+      outbound:
+        tcp:
+          - "8443": master
+          - "8443": worker
