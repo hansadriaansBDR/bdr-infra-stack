@@ -1,9 +1,11 @@
 ### Example user template template
 ### Example user template
 
+*.retry
 # IntelliJ project files
 .idea
 *.iml
 out
 gen
 # Created by .ignore support plugin (hsz.mobi)
+.DS_Store
