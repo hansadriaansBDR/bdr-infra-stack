@@ -1,11 +1,5 @@
 ---
 - hosts: aws_ireland
-  vars:
-    network:
-      id: "{{ network_id }}"
-    subnets:
-      private:
-        id: "{{ subnet_id }}"
   roles:
     - datalake_aws
 

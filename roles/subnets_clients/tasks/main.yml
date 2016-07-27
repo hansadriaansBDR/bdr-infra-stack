@@ -1,23 +1,18 @@
 ---
 
 
-- name: Check required parameters (general)
-  assert:
-    that:
-      - "subnets is defined"
 
-- name: Check required parameters (all entries should have ID)
+- name: "Check required parameters (multiple subnets: subnet_ids)"
   assert:
     that:
-      - "item.value.id is defined" # Clients of the routing module require the ID of the routing table.
-  with_dict: subnets
-  when: subnet is undefined
+      - "subnet_ids is defined"
+  when: multi
 
-- name: "Check required parameters (check specific entry for ID: {{ subnet }})"
+- name: "Check required parameters (single subnet: subnet_id)"
   assert:
     that:
-      - "subnets[subnet].id is defined"
-  when: subnet is defined
+      - "subnet_id is defined"
+  when: not multi
 
 
 

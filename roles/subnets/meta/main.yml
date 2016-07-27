@@ -1,4 +1,4 @@
 ---
 dependencies:
   - { role: network_clients } # Depends on the ID of the networking infrastructure.
-  - { role: routing_clients } # Depends on the routing table IDs.
+  - { role: routing_clients, multi: True } # Depends on the routing table IDs.

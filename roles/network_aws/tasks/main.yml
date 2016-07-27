@@ -17,6 +17,6 @@
 - name: Show stack outputs
   debug: msg="My stack outputs are {{network_aws_stack.stack_outputs}}"
 
-- name: Define Network ID
+- name: Define Outputs
   set_fact:
-    network: "{{ network | combine({'id': network_aws_stack.stack_outputs.vpc}) }}"
+    network_aws: "{{ {'output': {'network_id': network_aws_stack.stack_outputs.vpc}} }}"

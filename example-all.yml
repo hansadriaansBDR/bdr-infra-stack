@@ -2,7 +2,7 @@
 - hosts: aws_ireland
   roles:
     - network_aws
-    - routing_aws
-    - subnets_aws
-    - datalake_aws
+    - { role: routing_aws, network_id: "{{ network_aws.output.network_id }}" }
+    - { role: subnets_aws, network_id: "{{ network_aws.output.network_id }}", routing_ids: "{{ routing_aws.output.routing_ids }}" }
+    - { role: datalake_aws, network_id: "{{ network_aws.output.network_id }}", subnet_id: "{{ subnets_aws.output.subnet_ids.private }}"}
 

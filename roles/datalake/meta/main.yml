@@ -1,4 +1,4 @@
 ---
 dependencies:
   - { role: network_clients } # Depends on the ID of the networking infrastructure.
-  - { role: subnets_clients, subnet: "{{ datalake.subnet }}" } # Depends on the subnet ID of the private subnet only.
+  - { role: subnets_clients, multi: False } # Depends on the subnet ID of the private subnet only.

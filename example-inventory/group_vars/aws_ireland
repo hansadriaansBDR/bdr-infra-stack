@@ -43,7 +43,6 @@ subnets:
 datalake:
   release: "emr-4.7.2"
   name: "{{ stack }}-emr"
-  subnet: "private"
   applications:
     - Spark
     - Hadoop

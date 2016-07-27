@@ -1,22 +1,15 @@
 ---
 
 
-- name: Check required parameters (general)
+- name: "Check required parameters (multiple routing tables: routing_ids)"
   assert:
     that:
-      - "routing is defined"
+      - "routing_ids is defined"
+  when: multi
 
-- name: Check required parameters (all entries should have ID)
+- name: "Check required parameters (single routing table: routing_id)"
   assert:
     that:
-      - "item.value.id is defined" # Clients of the routing module require the ID of the routing table.
-  with_dict: routing
-  when: route is undefined
-
-- name: "Check required parameters (check specific entry for ID: {{ route }})"
-  assert:
-    that:
-      - "routing[route].id is defined"
-  when: route is defined
-
+      - "routing_id is defined"
+  when: not multi
 

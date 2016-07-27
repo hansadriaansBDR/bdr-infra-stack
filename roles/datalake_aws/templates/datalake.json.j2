@@ -41,7 +41,7 @@
        "SecurityGroup{{ group_key }}"                            : {
               "Type" : "AWS::EC2::SecurityGroup",
               "Properties" : {
-                  "VpcId" : "{{ network.id }}",
+                  "VpcId" : "{{ network_id }}",
                   "GroupDescription" : "Firewalling for {{ group_key }}",
                   "Tags"                 : [
                       {
@@ -92,7 +92,7 @@
                               "Ref" : "SecurityGroupservice"
                           },
           {% endif %}
-          "Ec2SubnetId": "{{ subnets[datalake.subnet].id }}"
+          "Ec2SubnetId": "{{ subnet_id }}"
         },
         "Applications": [
           {% for application in datalake.applications %}
