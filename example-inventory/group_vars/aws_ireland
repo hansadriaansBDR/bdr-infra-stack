@@ -1,8 +1,11 @@
 ---
 
-aws_region: eu-west-1
-network_name: "{{ stack }} - VPC"
-network_cidr: "10.0.0.0/16"
+aws:
+  region: eu-west-1
+
+network:
+  name: "{{ stack }} - VPC"
+  cidr: "10.0.0.0/16"
 
 routing:
   private:
@@ -90,3 +93,4 @@ datalake:
         tcp:
           - "8443": master
           - "8443": worker
+

@@ -3,5 +3,6 @@
   assert:
     that:
       - "stack is defined"
-      - "network_name is defined"
-      - "network_cidr is defined"
+      - "network is defined"
+      - "network.name is defined"
+      - "network.cidr is defined"

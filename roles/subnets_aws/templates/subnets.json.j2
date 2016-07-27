@@ -6,7 +6,7 @@
         "Subnet{{ subnet_key }}" : {
          "Type" : "AWS::EC2::Subnet",
          "Properties" : {
-            "VpcId" : "{{ network_id }}",
+            "VpcId" : "{{ network.id }}",
             "CidrBlock" : "{{ subnet['cidr'] }}",
             "Tags" : [ { "Key" : "Name", "Value" : "{{ subnet['name'] }}" } ]
          }

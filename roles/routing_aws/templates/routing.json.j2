@@ -28,7 +28,7 @@
                     "Type" : "AWS::EC2::VPCGatewayAttachment",
                     "Properties" : {
                         "InternetGatewayId" : {"Ref": "InternetGateway{{ table_key }}{{ route_key }}"},
-                        "VpcId" : "{{ network_id }}"
+                        "VpcId" : "{{ network.id }}"
                      }
                 },
               {% elif route['type'] == 'service_endpoint' %}
@@ -46,7 +46,7 @@
                         },
                         "RouteTableIds" : [ {"Ref": "RouteTable{{ table_key }}"}],
                         "ServiceName" : "{{ route['dest'] }}",
-                        "VpcId" : "{{ network_id }}"
+                        "VpcId" : "{{ network.id }}"
                   }
                 },
               {% endif %}
@@ -69,7 +69,7 @@
             "RouteTable{{ table_key }}": {
                "Type" : "AWS::EC2::RouteTable",
                "Properties" : {
-                  "VpcId" : "{{ network_id }}",
+                  "VpcId" : "{{ network.id }}",
                   "Tags" : [ {"Key" : "Name", "Value" : "{{ table['name'] }}"} ]
                }
             }

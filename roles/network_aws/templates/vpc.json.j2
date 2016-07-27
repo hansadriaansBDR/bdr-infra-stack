@@ -4,11 +4,11 @@
     "vpc" : {
       "Type" : "AWS::EC2::VPC",
       "Properties" : {
-        "CidrBlock" : "{{ network_cidr }}",
+        "CidrBlock" : "{{ network.cidr }}",
         "EnableDnsSupport" : "true",
         "EnableDnsHostnames" : "true",
         "InstanceTenancy" : "default",
-        "Tags" : [ {"Key" : "Name", "Value" : "{{ network_name }}"} ]
+        "Tags" : [ {"Key" : "Name", "Value" : "{{ network.name }}"} ]
       }
     }
   },

@@ -41,7 +41,7 @@
        "SecurityGroup{{ group_key }}"                            : {
               "Type" : "AWS::EC2::SecurityGroup",
               "Properties" : {
-                  "VpcId" : "{{ network_id }}",
+                  "VpcId" : "{{ network.id }}",
                   "GroupDescription" : "Firewalling for {{ group_key }}",
                   "Tags"                 : [
                       {

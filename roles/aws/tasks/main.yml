@@ -4,4 +4,5 @@
 - name: Check required parameters (region)
   assert:
     that:
-      - "aws_region is defined"
+      - "aws is defined"
+      - "aws.region is defined"
