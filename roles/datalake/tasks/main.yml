@@ -10,7 +10,7 @@
       - "datalake.instance_groups.master is defined"
       - "datalake.instance_groups.worker is defined"
       - "datalake.key_pair is defined"
-      - "subnet_id is defined"
+      - "datalake.id is defined"
 
 - name: Check required parameters (instance groups)
   assert:

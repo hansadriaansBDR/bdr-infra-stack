@@ -1,0 +1,16 @@
+---
+
+- name: Generate NAT (EC2 instance) template
+  template: src="nat.json.j2" dest="{{ tmp_dir }}/nat.json"
+
+- name: Create NAT (EC2 instance)
+  cloudformation:
+    stack_name: "{{ stack }}-nat-{{nat.id}}"
+    state: "present"
+    region: "{{ aws.region }}"
+    disable_rollback: true
+    template: "{{ tmp_dir }}/nat.json"
+    tags:
+      stack: "{{ stack }}"
+  register: nat_aws_stack
+

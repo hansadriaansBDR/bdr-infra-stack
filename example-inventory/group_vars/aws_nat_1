@@ -1,0 +1,10 @@
+---
+
+aws:
+  region: eu-west-1
+
+nat:
+  id: 1
+  name: "{{ stack }} - NAT"
+  type: t2.micro
+  key_pair: "{{stack}}"

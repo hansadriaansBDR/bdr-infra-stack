@@ -5,7 +5,7 @@
 
 - name: Create datalake (EMR cluster)
   cloudformation:
-    stack_name: "{{ stack }}-datalake"
+    stack_name: "{{ stack }}-datalake-{{datalake.id}}"
     state: "present"
     region: "{{ aws.region }}"
     disable_rollback: true

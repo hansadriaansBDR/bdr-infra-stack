@@ -5,7 +5,7 @@
 
 - name: Create VPC
   cloudformation:
-    stack_name: "{{ stack }}"
+    stack_name: "{{ stack }}-network"
     state: "present"
     region: "{{ aws.region }}"
     disable_rollback: true

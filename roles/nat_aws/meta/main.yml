@@ -1,0 +1,4 @@
+---
+dependencies:
+  - { role: nat } # Depends on the interface for datalakes.
+  - { role: aws} # Depends on the AWS region parameters.

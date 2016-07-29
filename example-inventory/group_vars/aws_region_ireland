@@ -1,0 +1,41 @@
+---
+
+aws:
+  region: eu-west-1
+
+network:
+  name: "{{ stack }} - VPC"
+  cidr: "10.0.0.0/16"
+
+routing:
+  private:
+    name: "Private Route"
+    routes:
+      s3:
+        type: service_endpoint
+        dest: "com.amazonaws.eu-west-1.s3"
+  public:
+    name: "Public Route"
+    routes:
+      internet:
+        type: gateway
+        dest: "0.0.0.0/0"
+      s3:
+        type: service_endpoint
+        dest: "com.amazonaws.eu-west-1.s3"
+
+subnets:
+  private:
+    name: "Private Subnet"
+    cidr: "10.0.1.0/24"
+    routing_association: "private"
+    firewall:
+      inbound: {}
+      outbound: {}
+  public:
+    name: "Public Subnet"
+    cidr: "10.0.0.0/24"
+    routing_association: "public"
+    firewall:
+      inbound: {}
+      outbound: {}

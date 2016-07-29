@@ -1,0 +1,9 @@
+---
+- name: Check required parameters (general)
+  assert:
+    that:
+      - "nat is defined"
+      - "nat.key_pair is defined"
+      - "nat.type is defined"
+      - "nat.id is defined"
+
