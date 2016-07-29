@@ -14,6 +14,19 @@
       }
   },
   "Resources": {
+       "SecurityGroupNAT{{ nat.id }}"                            : {
+              "Type" : "AWS::EC2::SecurityGroup",
+              "Properties" : {
+                  "VpcId" : "{{ network_id }}",
+                  "GroupDescription" : "Firewalling for NAT",
+                  "Tags"                 : [
+                      {
+                          "Key" : "Name",
+                          "Value" : "SecurityGroupNAT{{ nat.id }}"
+                      }
+                  ]
+              }
+          },
 
     "NAT" : {
       "Type" : "AWS::EC2::Instance",
@@ -24,7 +37,7 @@
         "ImageId" : { "Fn::FindInMap" : [ "NatRegionMap", { "Ref" : "AWS::Region" }, "AMI" ]},
     "NetworkInterfaces" : [{
 	      {% if nat.firewall is defined %}
-          "GroupSet"                 : [{ "Ref" : "NatSecurityGroup" }],
+          "GroupSet"                 : [{ "Ref" : "SecurityGroupNAT{{ nat.id }}" }],
           {% endif %}
           "AssociatePublicIpAddress" : "true",
           "DeviceIndex"              : "0",

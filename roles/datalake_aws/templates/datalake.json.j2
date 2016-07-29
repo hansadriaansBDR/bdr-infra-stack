@@ -21,13 +21,13 @@
                           "ToPort"     : "{{ to_port }}",
                           "{{ src_dest_type }}SecurityGroupId" : {
                               "Fn::GetAtt" : [
-                                  "SecurityGroup{{ src_dest }}",
+                                  "SecurityGroupDatalake{{ datalake.id}}{{ src_dest }}",
                                   "GroupId"
                               ]
                           },
                           "GroupId"               : {
                               "Fn::GetAtt" : [
-                                  "SecurityGroup{{ group_key }}",
+                                  "SecurityGroupDatalake{{ datalake.id}}{{ group_key }}",
                                   "GroupId"
                               ]
                           }
@@ -38,7 +38,7 @@
           {% endfor %}
 
 
-       "SecurityGroup{{ group_key }}"                            : {
+       "SecurityGroupDatalake{{ datalake.id}}{{ group_key }}"                            : {
               "Type" : "AWS::EC2::SecurityGroup",
               "Properties" : {
                   "VpcId" : "{{ network_id }}",
@@ -46,7 +46,7 @@
                   "Tags"                 : [
                       {
                           "Key" : "Name",
-                          "Value" : "SecurityGroup{{ group_key }}"
+                          "Value" : "SecurityGroupDatalake{{ datalake.id}}{{ group_key }}"
                       }
                   ]
               }
@@ -83,13 +83,13 @@
           "Ec2KeyName": "{{ datalake.key_pair }}",
           {% if datalake.firewall is defined %}
           "EmrManagedMasterSecurityGroup" : {
-                              "Ref" : "SecurityGroupmaster"
+                              "Ref" : "SecurityGroupDatalake{{ datalake.id }}master"
                           },
           "EmrManagedSlaveSecurityGroup" : {
-                              "Ref" : "SecurityGroupworker"
+                              "Ref" : "SecurityGroupDatalake{{ datalake.id }}worker"
                           },
           "ServiceAccessSecurityGroup" : {
-                              "Ref" : "SecurityGroupservice"
+                              "Ref" : "SecurityGroupDatalake{{ datalake.id }}service"
                           },
           {% endif %}
           "Ec2SubnetId": "{{ subnet_id }}"

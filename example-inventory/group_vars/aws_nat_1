@@ -8,3 +8,4 @@ nat:
   name: "{{ stack }} - NAT"
   type: t2.micro
   key_pair: "{{stack}}"
+  firewall: {}
