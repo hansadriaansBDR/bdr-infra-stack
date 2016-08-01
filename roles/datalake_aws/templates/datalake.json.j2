@@ -19,12 +19,18 @@
                           "FromPort" : "{{ from_port  }}",
                           "IpProtocol" : "{{ proto }}",
                           "ToPort"     : "{{ to_port }}",
+                          {% if src_dest in datalake.firewall %}
                           "{{ src_dest_type }}SecurityGroupId" : {
                               "Fn::GetAtt" : [
                                   "SecurityGroupDatalake{{ datalake.id}}{{ src_dest }}",
                                   "GroupId"
                               ]
                           },
+                          {% elif '/' in src_dest %}
+                          "CidrIp" : "{{ src_dest }}",
+                          {% else %}
+                          "{{ src_dest_type }}SecurityGroupId" : "{{ src_dest }}",
+                          {% endif %}
                           "GroupId"               : {
                               "Fn::GetAtt" : [
                                   "SecurityGroupDatalake{{ datalake.id}}{{ group_key }}",
