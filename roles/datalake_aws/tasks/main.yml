@@ -7,10 +7,13 @@
   cloudformation:
     stack_name: "{{ stack }}-datalake-{{datalake.id}}"
     state: "present"
-    region: "{{ aws.region }}"
+    region: "{{ aws_region }}"
     disable_rollback: true
     template: "{{ tmp_dir }}/datalake.json"
     tags:
       stack: "{{ stack }}"
   register: datalake_aws_stack
 
+- name: Define Outputs
+  set_fact:
+    datalake_aws: "{{ {'output': {'firewall_ids': datalake_aws_stack.stack_outputs}} }}"

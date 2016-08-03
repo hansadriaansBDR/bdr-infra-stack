@@ -51,8 +51,8 @@ Service specific components (rule of thumb 2):
 * **vpn** - (TODO) Interface for a software VPN implementation.
 
 Interface enforcing only (reduce code duplication rule):
-* **aws** - Interface depended upon by all _aws implementation roles. Enforces that AWS specific parameters are provided (e.g. region).
-* **firewall_clients** - Interface depended upon by all other roles that want to add region-specific firewall groups (e.g. security groups with AWS, network security groups with Azure). This allows cross-referencing by name to firewall groups belonging to another role. E.g. datalake might reference the VPN group or vice versa.
+* **aws_clients** - Interface depended upon by all _aws implementation roles. Enforces that AWS specific parameters are provided (e.g. region).
+* **firewall_clients** - (TODO) Interface depended upon by all other roles that want to add region-specific firewall groups (e.g. security groups with AWS, network security groups with Azure). This allows cross-referencing by name to firewall groups belonging to another role. E.g. datalake might reference the VPN group or vice versa.
 
 ### Inventory host group convention
 Because most of the deployment does not happen on servers, but runs on localhost calling cloud APIs, we have adopted the following rule of thumb conventions similar to the role structure conventions:

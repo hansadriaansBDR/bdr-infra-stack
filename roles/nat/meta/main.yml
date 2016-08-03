@@ -3,3 +3,4 @@ dependencies:
   - { role: network_clients } # Depends on the ID of the networking infrastructure.
   - { role: subnets_clients, multi: False } # Depends on the subnet ID of one subnet only.
   - { role: routing_clients, multi: True } # Depends on the routing ID of all route tables that need to be associated with this NAT
+  - { role: firewall_clients, when: "nat.firewall is defined", firewall_groups: "{{ nat.firewall | default({}) }}" }

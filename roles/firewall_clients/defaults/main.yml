@@ -1,0 +1,2 @@
+---
+firewall_ids: {} # Lookup table for external firewall IDs "key" -> "value"

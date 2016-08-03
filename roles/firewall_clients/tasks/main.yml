@@ -1,0 +1,77 @@
+---
+
+
+- name: Check required parameters (firewall_groups)
+  assert:
+    that:
+      - "firewall_groups is defined"
+
+
+- name: Check firewall group structure
+  assert:
+    that:
+      - "item.value.outbound is defined"
+      - "item.value.inbound is defined"
+      - "item.key not in firewall_ids"
+  with_dict: firewall_groups
+
+
+- name: Define internal firewall group rules (inbound tcp)
+  set_fact:
+    firewall_inbound_tcp: "{{ firewall_groups.values() | map(attribute='inbound') | selectattr('tcp','defined') | map(attribute='tcp') | list }}"
+  when: (firewall_groups.values() | map(attribute='inbound') | selectattr('tcp','defined') | list | length) > 0
+
+- name: Define internal firewall group rules (inbound udp)
+  set_fact:
+    firewall_inbound_udp: "{{ firewall_groups.values() | map(attribute='inbound') | selectattr('udp','defined') | map(attribute='udp') | list }}"
+  when: (firewall_groups.values() | map(attribute='inbound') | selectattr('udp','defined') | list | length) > 0
+
+- name: Define internal firewall group rules (inbound icmp)
+  set_fact:
+    firewall_inbound_icmp: "{{ firewall_groups.values() | map(attribute='inbound') | selectattr('icmp','defined') | map(attribute='icmp') | list }}"
+  when: (firewall_groups.values() | map(attribute='inbound') | selectattr('icmp','defined') | list | length) > 0
+
+- name: Define internal firewall group rules (inbound all)
+  set_fact:
+    firewall_inbound_all: "{{ firewall_groups.values() | map(attribute='inbound') | selectattr('all','defined') | map(attribute='all') | list }}"
+  when: (firewall_groups.values() | map(attribute='inbound') | selectattr('all','defined') | list | length) > 0
+
+- name: Define internal firewall group rules (outbound tcp)
+  set_fact:
+    firewall_outbound_tcp: "{{ firewall_groups.values() | map(attribute='outbound') | selectattr('tcp','defined') | map(attribute='tcp') | list }}"
+  when: (firewall_groups.values() | map(attribute='outbound') | selectattr('tcp','defined') | list | length) > 0
+
+- name: Define internal firewall group rules (outbound udp)
+  set_fact:
+    firewall_outbound_udp: "{{ firewall_groups.values() | map(attribute='outbound')  | selectattr('udp','defined') | map(attribute='udp') | list }}"
+  when: (firewall_groups.values() | map(attribute='outbound') | selectattr('udp','defined') | list | length) > 0
+
+- name: Define internal firewall group rules (outbound icmp)
+  set_fact:
+    firewall_outbound_icmp: "{{ firewall_groups.values() | map(attribute='outbound')  | selectattr('icmp','defined') | map(attribute='icmp') | list }}"
+  when: (firewall_groups.values() | map(attribute='outbound') | selectattr('icmp','defined') | list | length) > 0
+
+- name: Define internal firewall group rules (outbound all)
+  set_fact:
+    firewall_outbound_all: "{{ firewall_groups.values() | map(attribute='outbound')  | selectattr('all','defined') | map(attribute='all') | list }}"
+  when: (firewall_groups.values() | map(attribute='outbound') | selectattr('all','defined') | list | length) > 0
+
+
+- name: Check cross-references of firewall group rules
+  assert:
+    that:
+      - "item.values()[0] is defined"
+      - "item.values()[0] in firewall_ids or item.values()[0] in firewall_groups"
+  #with_flattened: (firewall_inbound_tcp | default([])) | union((firewall_inbound_udp | default([])))| union((firewall_inbound_icmp | default([])))| union((firewall_inbound_all | default([])))| union((firewall_outbound_tcp | default([])))| union((firewall_outbound_udp | default([])))| union((firewall_outbound_icmp | default([])))| union((firewall_outbound_all | default([])))
+  with_flattened:
+    - "{{ firewall_inbound_tcp | default([]) }}"
+    - "{{ firewall_inbound_udp | default([]) }}"
+    - "{{ firewall_inbound_icmp | default([]) }}"
+    - "{{ firewall_inbound_all | default([]) }}"
+    - "{{ firewall_outbound_tcp | default([]) }}"
+    - "{{ firewall_outbound_udp | default([]) }}"
+    - "{{ firewall_outbound_icmp | default([]) }}"
+    - "{{ firewall_outbound_all | default([]) }}"
+
+
+

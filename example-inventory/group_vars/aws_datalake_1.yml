@@ -1,8 +1,5 @@
 ---
 
-aws:
-  region: eu-west-1
-
 datalake:
   id: 1
   release: "emr-4.7.2"
@@ -26,7 +23,7 @@ datalake:
       instance_group: master # References "master" in instance_groups. Cannot reference like this outside the datalake.instance_groups.
       inbound:
         tcp:
-          - "0-65535": master # References "master" in firewall. Cannot reference like this outside the datalake.firewall.
+          - "0-65535": master # References "master" in firewall. Cannot reference like this outside the datalake.firewall unless provided in firewall_ids.
           - "0-65535": worker
           - "8443": service
         icmp:

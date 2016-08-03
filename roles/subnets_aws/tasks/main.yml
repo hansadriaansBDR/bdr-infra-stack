@@ -7,7 +7,7 @@
   cloudformation:
     stack_name: "{{ stack }}-subnets"
     state: "present"
-    region: "{{ aws.region }}"
+    region: "{{ aws_region }}"
     disable_rollback: true
     template: "{{ tmp_dir }}/subnets.json"
     tags:

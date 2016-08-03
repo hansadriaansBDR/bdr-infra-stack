@@ -14,20 +14,63 @@
       }
   },
   "Resources": {
-       "SecurityGroupNAT{{ nat.id }}"                            : {
+  {% if nat.firewall is defined %}
+  {% for group_key, group in nat.firewall.items() %}
+          {% for type in group.keys() %}
+          {% for proto, rules in group[type].items() %}
+          {% for rule in rules %}
+          {% set port_split = rule.keys()[0].split('-') %}
+          {% set from_port = '-1' if proto == 'icmp' else port_split[0] %}
+          {% set to_port = '-1' if proto == 'icmp' else port_split[-1] %}
+          {% set src_dest = rule.values()[0] %}
+          {% set sec_type = 'Ingress' if type == 'inbound' else 'Egress' %}
+          {% set src_dest_type = 'Source' if type == 'inbound' else 'Destination' %}
+          "{{ type }}{{ group_key }}{{ proto }}{{ loop.index }}"        : {
+                      "Type" : "AWS::EC2::SecurityGroup{{ sec_type }}",
+                      "Properties" : {
+                          "FromPort" : "{{ from_port  }}",
+                          "IpProtocol" : "{{ proto }}",
+                          "ToPort"     : "{{ to_port }}",
+                          {% if src_dest in nat.firewall %}
+                          "{{ src_dest_type }}SecurityGroupId" : {
+                              "Fn::GetAtt" : [
+                                  "SecurityGroupNAT{{ nat.id}}{{ src_dest }}",
+                                  "GroupId"
+                              ]
+                          },
+                          {% elif src_dest in firewall_ids %}
+                          "{{ src_dest_type }}SecurityGroupId" : "{{ firewall_ids[src_dest] }}",
+                          {% else %}
+                          "CidrIp" : "{{ src_dest }}",
+                          {% endif %}
+                          "GroupId"               : {
+                              "Fn::GetAtt" : [
+                                  "SecurityGroupNAT{{ nat.id}}{{ group_key }}",
+                                  "GroupId"
+                              ]
+                          }
+                      }
+                  },
+          {% endfor %}
+          {% endfor %}
+          {% endfor %}
+
+
+       "SecurityGroupNAT{{ nat.id}}{{ group_key }}"                            : {
               "Type" : "AWS::EC2::SecurityGroup",
               "Properties" : {
                   "VpcId" : "{{ network_id }}",
-                  "GroupDescription" : "Firewalling for NAT",
+                  "GroupDescription" : "Firewalling for {{ group_key }}",
                   "Tags"                 : [
                       {
                           "Key" : "Name",
-                          "Value" : "SecurityGroupNAT{{ nat.id }}"
+                          "Value" : "SecurityGroupNAT{{ nat.id}}{{ group_key }}"
                       }
                   ]
               }
           },
-
+   {% endfor %}
+   {% endif %}
     "NAT" : {
       "Type" : "AWS::EC2::Instance",
       "Properties" : {
@@ -37,7 +80,12 @@
         "ImageId" : { "Fn::FindInMap" : [ "NatRegionMap", { "Ref" : "AWS::Region" }, "AMI" ]},
     "NetworkInterfaces" : [{
 	      {% if nat.firewall is defined %}
-          "GroupSet"                 : [{ "Ref" : "SecurityGroupNAT{{ nat.id }}" }],
+          "GroupSet"                 : [
+          {% for group_key, group in nat.firewall.items() %}
+          { "Ref" : "SecurityGroupNAT{{ nat.id }}{{ group_key }}" }
+          {% if not loop.last %},{% endif %}
+          {% endfor %}
+          ],
           {% endif %}
           "AssociatePublicIpAddress" : "true",
           "DeviceIndex"              : "0",
@@ -67,5 +115,19 @@
     {% endfor %}
 
 
-  }
+  },
+    "Outputs" : {
+  {% if nat.firewall is defined %}
+  {% for group_key, group in nat.firewall.items() %}
+      "{{ group_key }}" : {
+        "Description" : "{{ group_key }} firewall ID",
+        "Value" : {
+          "Ref" : "SecurityGroupNAT{{nat.id}}{{ group_key }}"
+        }
+      }
+      {% if not loop.last %},{% endif %}
+      {% endfor %}
+    }
+  {% endif %}
+
 }

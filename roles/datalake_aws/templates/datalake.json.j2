@@ -26,10 +26,10 @@
                                   "GroupId"
                               ]
                           },
-                          {% elif '/' in src_dest %}
-                          "CidrIp" : "{{ src_dest }}",
+                          {% elif src_dest in firewall_ids %}
+                          "{{ src_dest_type }}SecurityGroupId" : "{{ firewall_ids[src_dest] }}",
                           {% else %}
-                          "{{ src_dest_type }}SecurityGroupId" : "{{ src_dest }}",
+                          "CidrIp" : "{{ src_dest }}",
                           {% endif %}
                           "GroupId"               : {
                               "Fn::GetAtt" : [
@@ -115,5 +115,18 @@
         "VisibleToAllUsers": true
       }
     }
-  }
+  },
+    "Outputs" : {
+  {% if datalake.firewall is defined %}
+  {% for group_key, group in datalake.firewall.items() %}
+      "{{ group_key }}" : {
+        "Description" : "{{ group_key }} firewall ID",
+        "Value" : {
+          "Ref" : "SecurityGroupDatalake{{datalake.id}}{{ group_key }}"
+        }
+      }
+      {% if not loop.last %},{% endif %}
+      {% endfor %}
+    }
+  {% endif %}
 }

@@ -5,11 +5,11 @@
     - { role: routing_aws, network_id: "{{ network_aws.output.network_id }}" }
     - { role: subnets_aws, network_id: "{{ network_aws.output.network_id }}", routing_ids: "{{ routing_aws.output.routing_ids }}" }
 
+- hosts: aws_datalake_1
+  roles:
+    - { role: datalake_aws, aws_region: "{{ hostvars.aws_region_ireland.aws_region }}", network_id: "{{ hostvars.aws_region_ireland.network_aws.output.network_id }}", subnet_id: "{{ hostvars.aws_region_ireland.subnets_aws.output.subnet_ids.private }}"}
 
 - hosts: aws_nat_1
   roles:
-    - { role: nat_aws, network_id: "{{ hostvars.aws_region_ireland.network_aws.output.network_id }}", subnet_id: "{{ hostvars.aws_region_ireland.subnets_aws.output.subnet_ids.public }}", routing_ids: "{{ { 'private': hostvars.aws_region_ireland.routing_aws.output.routing_ids.private } }}"}
+    - { role: nat_aws, aws_region: "{{ hostvars.aws_region_ireland.aws_region }}", network_id: "{{ hostvars.aws_region_ireland.network_aws.output.network_id }}", subnet_id: "{{ hostvars.aws_region_ireland.subnets_aws.output.subnet_ids.public }}", routing_ids: "{{ { 'private': hostvars.aws_region_ireland.routing_aws.output.routing_ids.private } }}", firewall_ids: "{{ hostvars.aws_datalake_1.datalake_aws.output.firewall_ids }}"}
 
-- hosts: aws_datalake_1
-  roles:
-    - { role: datalake_aws, network_id: "{{ hostvars.aws_region_ireland.network_aws.output.network_id }}", subnet_id: "{{ hostvars.aws_region_ireland.subnets_aws.output.subnet_ids.private }}"}

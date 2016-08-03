@@ -1,4 +1,4 @@
 ---
 dependencies:
   - { role: subnets } # Depends on the interface for subnets.
-  - { role: aws} # Depends on the AWS region parameters.
+  - { role: aws_clients } # Depends on the AWS region parameters.

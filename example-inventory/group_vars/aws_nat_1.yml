@@ -1,11 +1,14 @@
 ---
 
-aws:
-  region: eu-west-1
-
 nat:
   id: 1
   name: "{{ stack }} - NAT"
   type: t2.micro
   key_pair: "{{stack}}"
-  firewall: {}
+  firewall:
+    nat:
+      inbound:
+        tcp:
+          - "0-65535": master
+          - "0-65535": worker
+      outbound: {}

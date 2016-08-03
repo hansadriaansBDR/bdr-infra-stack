@@ -2,3 +2,4 @@
 dependencies:
   - { role: network_clients } # Depends on the ID of the networking infrastructure.
   - { role: subnets_clients, multi: False } # Depends on the subnet ID of the private subnet only.
+  - { role: firewall_clients, when: "datalake.firewall is defined", firewall_groups: "{{ datalake.firewall | default({}) }}" }
