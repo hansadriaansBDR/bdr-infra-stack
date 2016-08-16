@@ -19,8 +19,20 @@ We apply the [Clean Architecture](https://8thlight.com/blog/uncle-bob/2012/08/13
 
 
 ## Current state
-The current code consists of only the BATCH component, with an AWS implementation using S3 and EMR; applying security best-practices. This resembles the end result of the Hands-on [Manual EMR Deployment Guide](docs/1-manual-emr-deployment/README.md).
+The current code consists of only the BATCH component, with an AWS implementation using S3 and EMR; applying security best-practices. This resembles the end result of the Hands-on [Manual EMR Deployment Guide](docs/1-manual-emr-deployment/README.md), and automating it after the [Automatic EMR Deployment Guide](docs/2-automatic-emr-deployment/README.md).
 
+## Prerequisites and usage
+
+* [Ansible 2.0 or higher](http://docs.ansible.com/ansible/intro_installation.html)
+* AWS account and python boto library ("pip install boto"), [configured to use the account](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html).
+
+To deploy the current infrastructure you only have to execute the following Ansible command (granted you configured BOTO/AWS credentials correctly and have both Python Boto and Ansible installed):
+
+```
+ansible-playbook example-all.yml -i example-inventory/dev -e stack=dev-{some-name}
+```
+
+Note: do not forget to tear down all the components created when done experimenting, see wrap-up section of [Automatic EMR Deployment Guide](docs/2-automatic-emr-deployment/README.md).
 
 ## Ansible role structure and conventions
 The Ansible [roles](roles/) directory contains all the roles that can be used. When following the standard best-practices for Ansible, each role contains a single component and/or service that can be deployed on one or more servers. Since we are focussing on infrastructure instead of software that is installed on a single server, we used the following rules of thumb for creating new roles:
