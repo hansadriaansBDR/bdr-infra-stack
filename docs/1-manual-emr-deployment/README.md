@@ -76,7 +76,7 @@ Now you have created your VPC with both a public and private subnet, we can star
 5. In the last step, select your EC2 key pair created at the beginning of this guide. This allows you to login with SSH to the cluster instances. Keep the permissions and security groups to the defaults for now, these set the AWS API access permissions for the EMR instances, and their instance specific firewalling respectively. Make sure to select "S3 server-side encryption", so all data that is being saved to S3 is encrypted on disk by default. ![Create EMR Step 4](resources/create_emr_4.png "Create EMR Step 4")
 
 While the EMR cluster is getting provisioned, you can check the "EC2" page for "Running Instances". In a minute or two, 3 new instances should appear of type m4.large. You can inspect their private IPs and security groups to see in which subnet their are allocated, and what firewalling is configured by default.
-In addition, you can find the details of your EMR cluster on the "EMR" page by selecting your dev-<name> cluster. When the status of the cluster becomes "Waiting", it is ready to receive jobs, and you can move on to the next section. In the mean time, you can answer the questions below.
+In addition, you can find the details of your EMR cluster on the "EMR" page by selecting your dev-{name} cluster. When the status of the cluster becomes "Waiting", it is ready to receive jobs, and you can move on to the next section. In the mean time, you can answer the questions below.
 #### Questions
 
 <details>
@@ -157,7 +157,7 @@ echo "openvpn:*2016ManualEmrDeploymentRemoteAccess" | chpasswd
 
 #### Troubleshooting
 
-In case automatic provisioning fails, login to the instance using SSH with (or use PuTTY): ssh -i "<your key pair locally stored>" openvpnas@<your_public_dns>. If the instance is not provisioned fully you should get a configuration prompt of OpenVPN immediately. You can use the configuration as defined at the top of the user data script in there manually, or exit the script CTRL+C and then manually execute all the steps from the user data script like shown below.
+In case automatic provisioning fails, login to the instance using SSH with (or use PuTTY): ssh -i "{your key pair locally stored}" openvpnas@{your_public_dns}. If the instance is not provisioned fully you should get a configuration prompt of OpenVPN immediately. You can use the configuration as defined at the top of the user data script in there manually, or exit the script CTRL+C and then manually execute all the steps from the user data script like shown below.
 
 ## Connecting to your VPC using OpenVPN
 
@@ -208,8 +208,8 @@ Because we are solely using security groups for firewalling (see note 2 for reco
 ## Submitting a job on the cluster from your workstation
 
 1. Make sure you have Spark installed locally by extracting it somewhere in a location you remember (+ install Java locally). http://d3kbcqa49mib13.cloudfront.net/spark-1.6.2-bin-hadoop2.6.tgz . We refer to the install location with SPARK_HOME (not to be confused with an environment variable).
-2. In order to connect to the cluster, which is running in YARN mode, we will require the Hadoop configuration files from the cluster to be downloaded to the workstation. ``mkdir <SPARK_HOME>/yarn-conf && scp -i "your key pair" ec2-user@master_private_ip:/etc/hadoop/conf/* <SPARK_HOME>/yarn-conf/``
-3. In order to submit a job, run the following: ``YARN_CONF_DIR=<SPARK_HOME>/yarn-conf/ HADOOP_USER_NAME=hadoop <SPARK_HOME>/bin/spark-submit --master yarn --deploy-mode cluster --class org.apache.spark.examples.SparkPi <SPARK_HOME>/lib/spark-examples-1.6.2-hadoop2.6.0.jar 10``.
+2. In order to connect to the cluster, which is running in YARN mode, we will require the Hadoop configuration files from the cluster to be downloaded to the workstation. ``mkdir {SPARK_HOME}/yarn-conf && scp -i "{your key pair}" ec2-user@master_private_ip:/etc/hadoop/conf/* {SPARK_HOME}/yarn-conf/``
+3. In order to submit a job, run the following: ``YARN_CONF_DIR={SPARK_HOME}/yarn-conf/ HADOOP_USER_NAME=hadoop {SPARK_HOME}/bin/spark-submit --master yarn --deploy-mode cluster --class org.apache.spark.examples.SparkPi {SPARK_HOME}/lib/spark-examples-1.6.2-hadoop2.6.0.jar 10``.
 
 
 
@@ -226,14 +226,14 @@ In order to accomplish this, we have to enable advanced routing in the OpenVPN i
 2. Allow traffic from the cluster to the vpn clients by modifying the OpenVPN auto-generated security group Inbound ("VPC"->"Security Groups" after filtering on your VPC). Add 10.0.0.0/16 as source. ![Allow Cluster Traffic](resources/allow_cluster_traffic.png "Allow Cluster Traffic")
 3. Make VPN clients routable in Private Routing table ("VPC"->"Routing Tables" after filtering on your VPC). Insert 172.27.224.0/20 as destination, and use the OpenVPN instance as target. ![Add VPN Client Route](resources/add_vpn_client_route.png "Add VPN Client Route")
 4. Login to your OpenVPN instance using SSH ``ssh -i "your key pair" openvpnas@openvpn_public_ip``, and switch to root with ``sudo su -``.
-5. Disable NAT / Enable advanced routing:
+5. Disable NAT / Enable advanced routing: 
 ```bash
 /usr/local/openvpn_as/scripts/confdba -mk vpn.server.routing.private_access -v route
 /usr/local/openvpn_as/scripts/confdba -mk vpn.server.routing.allow_private_nets_to_clients -v true
 /usr/local/openvpn_as/scripts/confdba -mk vpn.client.routing.reroute_dns -v custom
-/usr/local/openvpn_as/scripts/confdba -mk vpn.server.dhcp_option.dns.0 -v <OpenVPN private IP e.g. 10.0.0.163>
+/usr/local/openvpn_as/scripts/confdba -mk vpn.server.dhcp_option.dns.0 -v {OpenVPN private IP e.g. 10.0.0.163}
 /etc/init.d/openvpnas restart
-```
+``` 
 6. For DNS forwarding to the internal AWS DNS to work using routing, we need to setup a small DNS forwarder on the OpenVPN instance. See http://mindfulmachines.io/blog/2015/11/26/setting-up-a-personal-vpn-to-access-aws-instances for background information on the WHY.
 ```
 apt-get install -y bind9 bind9utils bind9-doc
@@ -265,7 +265,7 @@ named-checkconf
 service bind9 restart
 ```
 9. Reconnect to the VPN if necessary. Then the following command should work:
-```YARN_CONF_DIR=<SPARK_HOME>/yarn-conf/ HADOOP_USER_NAME=hadoop SPARK_PUBLIC_DNS=<your private ip on VPN> SPARK_LOCAL_IP=<your private ip on VPN e.g. 172.27.232.2> <SPARK_HOME>/bin/spark-shell --master yarn --deploy-mode client```
+```YARN_CONF_DIR={SPARK_HOME}/yarn-conf/ HADOOP_USER_NAME=hadoop SPARK_PUBLIC_DNS={your private ip on VPN} SPARK_LOCAL_IP={your private ip on VPN e.g. 172.27.232.2} {SPARK_HOME}/bin/spark-shell --master yarn --deploy-mode client```
 
 
 You can now work in the Spark shell and interactively query the cluster. You can monitor the Spark jobs getting launched at http://localhost:4040. You will also immediately encounter a downside to working remotely like this, the interactive shell takes a while to start, because everytime the whole 200MB Spark jar is uploaded over The Internet to HDFS in AWS. Using a notebook server that is hosted in the same data centre is preferred for data security, and bandwidth/data transfer cost reasons.
