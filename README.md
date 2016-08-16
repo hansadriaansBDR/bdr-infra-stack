@@ -40,19 +40,20 @@ Infrastructure related components (rule of thumb 1):
     * **routing_aws** - Implements routing by means of AWS Route Tables in VPC.
     * **routing_clients** - Interface depended upon by all other roles that require IDs of routing tables (e.g. nat).
 * **subnets** - Interface for subnets in a certain region. Defines subnets and corresponding associated firewalling.
-    * **subnets_aws** - Implements subnets by means of AWS subnets in VPC. Firewalling is implemented at subnet level using AWS network ACLs.
+    * **subnets_aws** - Implements subnets by means of AWS subnets in VPC. (TODO) Firewalling is implemented at subnet level using AWS network ACLs.
     * **subnets_clients** - Interface depended upon by all other roles that require one or more subnet IDs as input (e.g. datalake, nat).
  
 Service specific components (rule of thumb 2):
 * **nat** - Interface for a NAT to allow internet access from private subnets in the **network**.
-    * **nat_aws** - Implements the nat interface by means of an OpenVPN (AWS marketplace) appliance. Allows 2FA and VPN over TLS.
+    * **nat_aws** - Implements the nat interface by means of AWS software NAT instance.
 * **datalake** - Interface for a Hadoop/Spark datalake for batch processing.
     * **datalake_aws** - Implements the datalake by means of AWS S3 and AWS EMR.
 * **vpn** - (TODO) Interface for a software VPN implementation.
+    * **vpn_aws** - (TODO) Implements software VPN by means of an OpenVPN (AWS marketplace) appliance. Allows 2FA and VPN over TLS. 
 
 Interface enforcing only (reduce code duplication rule):
 * **aws_clients** - Interface depended upon by all _aws implementation roles. Enforces that AWS specific parameters are provided (e.g. region).
-* **firewall_clients** - (TODO) Interface depended upon by all other roles that want to add region-specific firewall groups (e.g. security groups with AWS, network security groups with Azure). This allows cross-referencing by name to firewall groups belonging to another role. E.g. datalake might reference the VPN group or vice versa.
+* **firewall_clients** - Interface depended upon by all other roles that want to add region-specific firewall groups (e.g. security groups with AWS, network security groups with Azure). This allows cross-referencing by name to firewall groups belonging to another role. E.g. datalake might reference the VPN group or vice versa.
 
 ### Inventory host group convention
 Because most of the deployment does not happen on servers, but runs on localhost calling cloud APIs, we have adopted the following rule of thumb conventions similar to the role structure conventions:
