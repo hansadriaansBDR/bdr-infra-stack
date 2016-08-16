@@ -21,7 +21,7 @@ For the first assignment we will give some pointers and suggestions to automate 
 
 # Designing for reusability
 
-The previous exercises focused on deploying specifically on AWS. Try to come up with an Ansible role structure that mimics the Clean Architecture principles used for software engineering (e.g. always depend on abstract roles/interfaces instead of implementation so that you can swap out different cloud provider implementations easily, and even make it possible to do a hybrid on-premise/multi-cloud approach in one system deployment).
+The previous exercises focused on deploying specifically on AWS. Try to come up with an Ansible role structure that mimics the [Clean Architecture](https://8thlight.com/blog/uncle-bob/2012/08/13/the-clean-architecture.html) principles used for software engineering (e.g. always depend on abstract roles/interfaces instead of implementation so that you can swap out different cloud provider implementations easily, and even make it possible to do a hybrid on-premise/multi-cloud approach in one system deployment).
 
 The ideas and conventions that were introduced to make this possible with the BDR Infra Stack are described in the main [README](../../README.md)
 
