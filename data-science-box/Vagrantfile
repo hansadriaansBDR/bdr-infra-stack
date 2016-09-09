@@ -1,0 +1,25 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "minimal/trusty64"
+  config.ssh.insert_key = false
+
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "provision.yml"
+    ansible.inventory_path = "example-inventory/dev"
+    ansible.raw_arguments = ['-u vagrant']
+  end
+
+  config.vm.define "bdr-data-science-stack", autostart: true do |vm|
+      vm.vm.hostname = "big-data-stack"
+      vm.vm.network "private_network", ip: "10.0.0.21"
+
+      # Provision virtualbox:
+      vm.vm.provider "virtualbox" do |vb|
+        vb.memory = 9000 #12288 # 12 GB
+        vb.cpus = 7
+        vb.customize ["modifyvm", :id, "--usb", "off"]
+        vb.customize ["modifyvm", :id, "--usbehci", "off"]
+      end
+  end
+
+
+end

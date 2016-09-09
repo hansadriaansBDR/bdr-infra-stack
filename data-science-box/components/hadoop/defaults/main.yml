@@ -1,0 +1,17 @@
+---
+DFS_NAME_DIR: /hadoop/hdfs/nn
+DFS_DATA_DIR: /hadoop/hdfs/dn
+DFS_CHECKPOINT_DIR: /hadoop/hdfs/snn
+DFS_JOURNAL_DIR: /hadoop/hdfs/journal
+
+HDFS_LOG_DIR: /hadoop/log/hdfs
+HDFS_PID_DIR: /hadoop/run/hdfs
+
+YARN_LOCAL_DIR: /hadoop/yarn/local
+YARN_LOCAL_LOG_DIR: /hadoop/yarn/logs
+YARN_LOG_DIR: /hadoop/log/yarn
+YARN_PID_DIR: /hadoop/run/yarn
+
+MAPRED_DIR: /hadoop/
+MAPRED_LOG_DIR: /hadoop/log/mapred
+MAPRED_PID_DIR: /hadoop/run/mapred

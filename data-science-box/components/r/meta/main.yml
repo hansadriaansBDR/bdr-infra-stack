@@ -1,0 +1,4 @@
+---
+dependencies:
+ - { role: basics }
+ - { role: spark }   # For SPARK_HOME

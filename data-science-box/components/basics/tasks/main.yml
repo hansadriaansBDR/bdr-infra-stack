@@ -1,0 +1,27 @@
+---
+- name: Install htop
+  apt: name=htop state=present
+
+- name: Install git
+  apt: name=git state=latest
+
+- name: Install curl
+  apt: name=curl state=latest
+
+- name: Install php5_curl
+  apt: name=php5-curl state=latest
+
+- name: Install ntp
+  apt: name=ntp state=latest
+
+- name: Install openssl
+  apt: name=openssl
+
+- name: Add ntp to boot and start the service
+  service: name=ntp enabled=yes state=started
+
+- name: Create datascience group
+  group: name=datascience state=present
+
+- name: Create the datascience user
+  user: name=datascience group=datascience createhome=yes

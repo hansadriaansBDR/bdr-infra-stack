@@ -1,0 +1,43 @@
+- name: Install python-dev
+  apt: name=python-dev
+
+- name: Install pip
+  apt: name=python-pip state=latest
+
+- name: Install virtualenv
+  pip: name=virtualenv state=latest
+
+- name: Install py4j
+  pip: name=py4j state=latest
+
+- name: Install Jupyter
+  pip: name=jupyter state=latest
+
+- name: Install datascience packages
+  pip: requirements=/vagrant/requirements.txt extra_args="--upgrade"
+  ignore_errors: yes
+
+#- name: Install thunder
+#  pip: name=thunder-python state=latest
+# Neural data analysis in Spark, handy for time series analysis (incl. ICA)
+
+- name: Check notebooks directory path
+  stat: path={{ dir_notebooks }}
+  register: st
+
+- name: Check if notebook directory path is a directory
+  fail: msg="'{{ dir_notebooks }}' exists but is not a directory"
+  when: st.stat.exists and st.stat.isdir == False
+
+- name: Create notebook directory
+  file: path={{ dir_notebooks }} state=directory mode=0755 owner=vagrant group=vagrant
+  when: st.stat.exists == False
+
+- name: Create an jupyter-notebook upstart script
+  template:
+    src=jupyter-notebook.conf.j2
+    dest=/etc/init/jupyter-notebook.conf
+
+- name: Make sure that jupyter notebook is started on boot
+  service: name=jupyter-notebook enabled=yes state=started
+

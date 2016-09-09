@@ -1,0 +1,58 @@
+---
+# We want RStudio server so that we have an RStudio environment, properly
+# configured to make use of spark as well, up and running once the VM is up.
+#
+# Source: https://www.rstudio.com/products/rstudio/download-server/
+- name: Add CRAN ubuntu repository
+  apt_repository: repo='deb http://lib.stat.cmu.edu/R/CRAN/bin/linux/ubuntu trusty/'
+
+- name: Add CRAN key
+  apt_key: keyserver=keyserver.ubuntu.com id=E084DAB9
+  register: cran_key
+
+- name: Update apt-cache with CRAN packages
+  apt: update_cache=yes
+  when: cran_key.changed == True
+
+- name: Install r-base
+  apt: name=r-base state=latest
+
+- name: Make sure that SPARK_HOME is known to R
+  lineinfile: dest=/usr/lib/R/etc/Renviron.site line=SPARK_HOME={{ SPARK_HOME }}
+
+- name: Make sure that SparkR is known to R
+  lineinfile: dest=/usr/lib/R/etc/Renviron.site line=R_LIBS_SITE=/usr/local/lib/R/site-library:/usr/lib/R/site-library:/usr/lib/R/library:{{ SPARK_HOME }}/R/lib
+
+- name: Copy Rprofile configuration
+  template: src=Rprofile.site.j2 dest=/usr/lib/R/etc/Rprofile.site
+
+# We could have used get_url here, see http://docs.ansible.com/ansible/get_url_module.html.
+# However, ubuntu 14.04 has no python 2.7.9 package yet (if ever) which leads to
+# a certificate issue. See this ansible  github issue for more details:
+# https://github.com/ansible/ansible/issues/12161
+
+- name: Copy md5
+  template:
+    src=rstudio-server.md5
+    dest="/home/vagrant/rstudio-server.md5"
+    mode=u+rw,g+r,o+r
+
+- stat: path=/home/vagrant/{{ file_rstudio }}
+  register: st
+
+- name: Download rstudio-server
+  command: wget https://download2.rstudio.org/{{ file_rstudio }} -O /home/vagrant/{{ file_rstudio }}
+  args:
+    creates: "/home/vagrant/{{ file_rstudio }}"
+
+- name: Check md5sum of {{ file_rstudio }}
+  command: md5sum -c /home/vagrant/rstudio-server.md5
+  args:
+    chdir: "/home/vagrant"
+  when: st.stat.exists == False
+
+- name: Install rstudio-server
+  apt: deb=/home/vagrant/{{ file_rstudio }} state=present
+
+- name: Check that rstudio-server is running
+  service: name=rstudio-server state=started

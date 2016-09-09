@@ -1,0 +1,16 @@
+---
+- name: Add repository for Oracle/Sun Java
+  apt_repository: repo='ppa:webupd8team/java'
+  register: oracle_repo
+
+- name: Autoaccept license for Java
+  action: shell echo oracle-java7-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
+  when: oracle_repo.changed == True
+
+- name: Install Oracle/Sun Java
+  apt: name='oracle-java7-installer' install_recommends=yes state=latest
+
+- name: Make sure that JAVA_HOME is exported
+  lineinfile:
+    dest=/etc/environment
+    line="export JAVA_HOME={{ JAVA_HOME }}"

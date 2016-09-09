@@ -1,0 +1,8 @@
+.First <- function() {
+    cat(
+        "\nWelcome to the BDR Data Science Stack!\n\n",
+        "To make use of SparkR try:\n\n" ,
+        "> library(SparkR)\n",
+        "> sc <- sparkR.init(master=\"spark://{{ hostvars['bdr-data-science-stack']['advertised_host'] }}:7077\")\n\n"
+    )
+}

@@ -1,0 +1,149 @@
+---
+# 2.2 Install the Hadoop Packages
+
+- name: Install hadoop
+  apt: name=hadoop state=latest
+
+- name: Install hadoop-hdfs
+  apt: name=hadoop-hdfs state=latest
+
+- name: Install libhdfs0
+  apt: name=libhdfs0 state=latest
+
+- name: Install hadoop-yarn
+  apt: name=hadoop-yarn state=latest
+
+- name: Install hadoop-mapreduce
+  apt: name=hadoop-mapreduce state=latest
+
+- name: Install hadoop-client
+  apt: name=hadoop-client state=latest
+
+# 2.3 Install Compression Libraries
+
+# 2.3.1 Install Snappy
+
+- name: Install libsnappy1
+  apt: name=libsnappy1 state=latest
+
+- name: Install libsnappy-dev
+  apt: name=libsnappy-dev state=latest
+
+# 2.3.2 Install LZO
+
+- name: Install liblzo2-2
+  apt: name=liblzo2-2 state=latest
+
+- name: Install liblzo2-dev
+  apt: name=liblzo2-dev state=latest
+
+- name: Install hadooplzo
+  apt: name=hadooplzo state=latest
+
+#  2.4.1. Create the NameNode Directories
+
+- name: Create NameNode directory
+  file: path={{ DFS_NAME_DIR }} state=directory owner=hdfs group=hadoop mode=0755
+  register: namenode_dir_created
+
+# 2.4.2. Create the SecondaryNameNode Directories
+
+- name: Create SecondaryNameNode directory
+  file: path={{ DFS_CHECKPOINT_DIR }} state=directory owner=hdfs group=hadoop mode=0755
+
+# 2.4.3. Create DataNode and YARN NodeManager Local Directories
+
+- name: Create DataNode directory
+  file: path={{ DFS_DATA_DIR }} state=directory owner=hdfs group=hadoop mode=0755
+
+- name: Create YARN NodeManager directory
+  file: path={{ YARN_LOCAL_DIR }} state=directory owner=yarn group=hadoop mode=0755
+
+- name: Create YARN NodeManager local log directory
+  file: path={{ YARN_LOCAL_LOG_DIR }} state=directory owner=yarn group=hadoop mode=0755
+
+# 2.4.4. Create the Log and PID Directories
+
+- name: Create HDFS log directory
+  file: path={{ HDFS_LOG_DIR }} state=directory owner=hdfs group=hadoop mode=0755
+
+- name: Create HDFS PID directory
+  file: path={{ HDFS_PID_DIR }} state=directory owner=hdfs group=hadoop mode=0755
+
+- name: Create YARN log directory
+  file: path={{ YARN_LOG_DIR }} state=directory owner=yarn group=hadoop mode=0755
+
+- name: Create YARN PID directory
+  file: path={{ YARN_PID_DIR }} state=directory owner=yarn group=hadoop mode=0755
+
+- name: Create MapReduce log directory
+  file: path={{ MAPRED_LOG_DIR }} state=directory owner=mapred group=hadoop mode=0755
+
+- name: Create MapReduce PID directory
+  file: path={{ MAPRED_PID_DIR }} state=directory owner=mapred group=hadoop mode=0755
+
+# 2.4.5. Symlink Directories with hdp-select
+
+- name: Find the current hdp-select version
+  shell: "dpkg -l | grep hdp-select- | awk '{ print $3 }'"
+  register: hdp_select_version
+
+- name: Symlink Directories with hdp-select
+  command: hdp-select set all {{ hdp_select_version.stdout }}
+
+#  4. Setting Up the Hadoop Configuration
+
+- name: Copy the core-site.xml configuration file
+  template:
+    src=etc/hadoop/core-site.xml
+    dest=/etc/hadoop/conf/core-site.xml
+
+- name: Copy the hdfs-site.xml configuration file
+  template:
+    src=etc/hadoop/hdfs-site.xml
+    dest=/etc/hadoop/conf/hdfs-site.xml
+
+- name: Copy the yarn-site.xml configuration file
+  template:
+    src=etc/hadoop/yarn-site.xml
+    dest=/etc/hadoop/conf/yarn-site.xml
+
+- name: Copy the hadoop-hdfs-datanode upstart script
+  template:
+    src=etc/init.d/hadoop-hdfs-datanode
+    dest=/etc/init.d/hadoop-hdfs-datanode mode="0755"
+
+- name: Copy the hadoop-hdfs-datanode defaults script
+  template:
+    src=etc/default/hadoop-hdfs-datanode
+    dest=/etc/default/hadoop-hdfs-datanode
+
+- name: Copy the hadoop-hdfs-namenode upstart script
+  template:
+    src=etc/init.d/hadoop-hdfs-namenode
+    dest=/etc/init.d/hadoop-hdfs-namenode mode="0755"
+
+- name: Copy the hadoop-hdfs-namenode defaults script
+  template:
+    src=etc/default/hadoop-hdfs-namenode
+    dest=/etc/default/hadoop-hdfs-namenode
+
+- name: Make sure that HADOOP_LOG_DIR is exported properly
+  lineinfile:
+    dest=/etc/hadoop/conf/hadoop-env.sh
+    line="export HADOOP_LOG_DIR={{ HDFS_LOG_DIR }}"
+
+- name: Format the hadoop file system
+  become: yes
+  become_user: hdfs
+  environment:
+    JAVA_HOME: "{{ JAVA_HOME }}"
+  shell: "/usr/hdp/current/hadoop-hdfs-namenode/../hadoop/bin/hdfs namenode -format"
+  when: namenode_dir_created.changed == true
+
+- name: Start the hadoop datanode service
+  service: name=hadoop-hdfs-datanode state=started enabled=yes
+
+- name: Start the hadoop namenode service
+  service: name=hadoop-hdfs-namenode state=started enabled=yes
+

@@ -1,0 +1,53 @@
+---
+- name: Install spark
+  apt: name=spark
+
+- name: Install spark-master
+  apt: name=spark-master
+
+- name: Install spark-worker
+  apt: name=spark-worker
+
+- name: Install spark-python
+  apt: name=spark-python
+
+- name: Copy the spark-master init.d script
+  template:
+    src=etc/init.d/spark-master
+    dest=/etc/init.d/spark-master mode="0755"
+
+- name: Copy the spark-worker init.d script
+  template:
+    src=etc/init.d/spark-worker
+    dest=/etc/init.d/spark-worker mode="0755"
+
+- name: Copy the spark-env.sh script
+  template:
+    src=etc/spark/conf/spark-env.sh
+    dest=/etc/spark/conf/spark-env.sh
+
+- name: Create local spark kernel directory
+  file: path={{ JUPYTER_HOME }}/kernels/localspark state=directory owner=root group=root mode=0755
+
+- name: Copy the jupyter kernel configuration for local spark
+  template:
+    src=ipython_kernels/jupyter_kernel_localspark.json
+    dest={{ JUPYTER_HOME }}/kernels/localspark/kernel.json
+
+- name: Create standalone spark kernel directory
+  file: path={{ JUPYTER_HOME }}/kernels/standalonespark state=directory owner=root group=root mode=0755
+
+- name: Copy the jupyter kernel configuration for standalone spark 
+  template:
+    src=ipython_kernels/jupyter_kernel_standalonespark.json
+    dest={{ JUPYTER_HOME }}/kernels/standalonepark/kernel.json
+
+- name: Create spark worker directory
+  file: path={{ SPARK_WORKER_DIR }} state=directory owner=spark group=hadoop mode=0755
+
+- name: Start the spark master service
+  service: name=spark-master state=started enabled=yes
+
+- name: Start the spark worker service
+  service: name=spark-worker state=started enabled=yes
+

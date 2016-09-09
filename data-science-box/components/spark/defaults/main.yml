@@ -1,0 +1,5 @@
+---
+SPARK_HOME: /usr/hdp/current/spark-client
+SPARK_WORKER_DIR: /hadoop/spark/worker
+SPARK_MASTER_PORT: 7077
+JUPYTER_HOME: /root/.ipython

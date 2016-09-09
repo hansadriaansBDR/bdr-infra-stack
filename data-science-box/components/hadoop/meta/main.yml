@@ -1,0 +1,4 @@
+---
+dependencies:
+ - { role: basics }
+ - { role: oracle-java }

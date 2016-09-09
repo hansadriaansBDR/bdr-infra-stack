@@ -1,0 +1,17 @@
+{
+ "display_name": "pySpark Standalone(Spark 1.5.2)",
+ "language": "python",
+ "argv": [
+  "/usr/bin/python2",
+  "-m",
+  "IPython.kernel",
+  "-f",
+  "{connection_file}"
+ ],
+ "env": {
+  "SPARK_HOME": "/usr/hdp/current/spark-client/",
+  "PYTHONPATH": "/usr/hdp/current/spark-client/python/:/usr/hdp/current/spark-client/python/lib/py4j-0.8.2.1-src.zip",
+  "PYTHONSTARTUP": "/usr/hdp/current/spark-client/python/pyspark/shell.py",
+  "PYSPARK_SUBMIT_ARGS": "--master spark://{{advertised_host}}:{{SPARK_MASTER_PORT}} --jars /root/.ipython/kernels/commons-csv-1.2.jar --packages com.databricks:spark-csv_2.10:1.4.0 pyspark-shell"
+ }
+}
