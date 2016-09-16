@@ -1,0 +1,11 @@
+[Unit]
+Description=Jupyter
+After=syslog.target network.target
+
+[Service]
+User=rhea
+ExecStart={{ anaconda_install_dir }}/bin/jupyterhub -f /etc/jupyterhub/jupyterhub_config.py --no-ssl
+WorkingDirectory=/home/rhea
+
+[Install]
+WantedBy=multi-user.target

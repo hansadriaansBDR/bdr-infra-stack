@@ -1,0 +1,3 @@
+---
+anaconda_force_install: False
+anaconda_install_dir: /opt/anaconda

@@ -1,0 +1,48 @@
+---
+
+- name: Purge current Anaconda installation
+  file: path={{ anaconda_install_dir }} state=absent
+  when: anaconda_force_install
+
+- name: Check for current Anaconda installation
+  stat: path={{ anaconda_install_dir }}
+  register: anaconda_install
+
+
+- name: Download Anaconda 3
+  get_url:
+    url: https://repo.continuum.io/archive/Anaconda3-4.1.1-Linux-x86_64.sh
+    dest: /tmp/install-anaconda.sh
+    mode: 0744
+  when: anaconda_install.stat.exists == False
+
+
+- name: Install Anaconda 3
+  shell: /tmp/install-anaconda.sh -b -p {{ anaconda_install_dir }} -f
+  when: anaconda_install.stat.exists == False
+
+
+- name: Install nodejs
+  package: name=nodejs state=present
+
+- name: Install git
+  package: name=git state=present
+
+
+- name: Check if configurable-http-proxy is installed (fast way)
+  stat: path=/usr/lib/node_modules/configurable-http-proxy
+  register: proxy_installed
+
+- name: Install configurable-http-proxy (npm)
+  npm: name=configurable-http-proxy global=yes production=yes state=present
+  when: proxy_installed.stat.exists == False
+
+- name: Add jupyterhub group
+  group: name=jupyterhub state=present
+
+- name: Create the rhea user
+  user: name=rhea group=jupyterhub createhome=yes
+
+- name: Install sudospawner
+  command: "{{ anaconda_install_dir}}/bin/pip install git+https://github.com/jupyter/sudospawner"
+

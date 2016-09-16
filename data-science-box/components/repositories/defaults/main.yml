@@ -1,0 +1,10 @@
+---
+repositories:
+  ambari:
+    url: http://public-repo-1.hortonworks.com/ambari/centos7/2.x/updates/2.1.2.1/ambari.repo
+  rpmforge:
+    local: rpmforge.repo
+  nodesource:
+    local: nodesource.repo
+    key: nodesource.key
+

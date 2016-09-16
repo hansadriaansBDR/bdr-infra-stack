@@ -6,29 +6,33 @@
 # http://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.3.4/bk_installing_manually_book/content/index.html
 
 
-- hosts: bdr-data-science-stack
+- hosts: bdr-data-science-box
   become: yes
 
-  pre_tasks:
-  - name: Download Hortonworks package list
-    get_url:
-      url=http://public-repo-1.hortonworks.com/HDP/ubuntu12/2.x/updates/2.3.4.0/hdp.list
-      dest=/etc/apt/sources.list.d/hdp.list mode=0644
-    register: hpl
-
-  - name: Add Hortonworks key
-    apt_key: keyserver=keyserver.ubuntu.com id=B9733A7A07513CAD
-    register: hpk
-
-  - name: Enforce apt cache update on Horton list or key changes
-    apt: update_cache=true
-    when: hpl.changed == true or hpk.changed == true
-
-  - name: Make sure that the apt cache is updated once per day
-    apt: update_cache=yes cache_valid_time=86400
+#  pre_tasks:
+#  - name: Download Hortonworks package list
+#    get_url:
+#      url=http://public-repo-1.hortonworks.com/HDP/ubuntu12/2.x/updates/2.3.4.0/hdp.list
+#      dest=/etc/apt/sources.list.d/hdp.list mode=0644
+#    register: hpl
+#
+#  - name: Add Hortonworks key
+#    apt_key: keyserver=keyserver.ubuntu.com id=B9733A7A07513CAD
+#    register: hpk
+#
+#  - name: Enforce apt cache update on Horton list or key changes
+#    apt: update_cache=true
+#    when: hpl.changed == true or hpk.changed == true
+#
+#  - name: Make sure that the apt cache is updated once per day
+#    apt: update_cache=yes cache_valid_time=86400
 
   roles:
-    - hadoop
-    - spark
-    - r
-    - python
+    - repositories
+    - monitoring
+    - anaconda
+
+#    - hadoop
+#    - spark
+#    - r
+#    - python
