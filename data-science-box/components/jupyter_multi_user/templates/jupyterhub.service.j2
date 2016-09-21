@@ -1,11 +1,11 @@
 [Unit]
-Description=Jupyter
+Description=JupyterHub
 After=syslog.target network.target
 
 [Service]
-User=root
+User=rhea
 Environment=PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:{{ anaconda_install_dir }}/bin:/root/bin
-ExecStart={{ anaconda_install_dir }}/bin/jupyter-notebook --ip 0.0.0.0 --port 80 --no-browser --notebook-dir={{ jupyter_single_user_cwd }} -y
+ExecStart={{ anaconda_install_dir }}/bin/jupyterhub -f /etc/jupyterhub/jupyterhub_config.py --no-ssl
 WorkingDirectory=/home/rhea
 
 [Install]

@@ -1,0 +1,13 @@
+---
+
+- name: Check parameters
+  assert:
+    that:
+      - anaconda_install_dir is defined
+
+- name: Install jupyter multi user service
+  template: src=jupyterhub.service.j2 dest=/lib/systemd/system/jupyterhub.service mode=0644
+  notify:
+    - daemon_reload
+    - restart_jupyterhub
+

@@ -1,5 +1,5 @@
 [bdr-data-science-box]
-bdr-data-science-box    advertised_host=10.0.0.21   ansible_host=10.0.0.21    ansible_ssh_host=10.0.0.21
+bdr-data-science-box ansible_connection=local
 
 
 

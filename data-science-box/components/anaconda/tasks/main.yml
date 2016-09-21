@@ -40,9 +40,61 @@
 - name: Add jupyterhub group
   group: name=jupyterhub state=present
 
-- name: Create the rhea user
-  user: name=rhea group=jupyterhub createhome=yes
 
 - name: Install sudospawner
-  command: "{{ anaconda_install_dir}}/bin/pip install git+https://github.com/jupyter/sudospawner"
+  pip:
+    name: "git+https://github.com/jupyter/sudospawner"
+    executable: "{{ anaconda_install_dir}}/bin/pip"
+    state: present
+    editable: False
+
+- name: Add required sudo privileges for sudospawner (1/3)
+  lineinfile:
+    dest: /etc/sudoers
+    regexp: "Alias SUDOSPAWNER_CMD"
+    line: "Cmnd_Alias SUDOSPAWNER_CMD = {{ anaconda_install_dir}}/bin/sudospawner"
+    validate: "visudo -cf %s"
+    state: present
+
+- name: Add required sudo privileges for sudospawner (2/3)
+  lineinfile:
+    dest: /etc/sudoers
+    regexp: "NOPASSWD:SUDOSPAWNER_CMD"
+    line: "rhea ALL=(%jupyterhub) NOPASSWD:SUDOSPAWNER_CMD"
+    validate: "visudo -cf %s"
+    state: present
+
+- name: Add required sudo privileges for sudospawner (3/3)
+  lineinfile:
+    dest: /etc/sudoers
+    regexp: "secure_path"
+    line: "Defaults secure_path = /sbin:/bin:/usr/sbin:/usr/bin:{{ anaconda_install_dir }}/bin"
+    validate: "visudo -cf %s"
+    state: present
+
+- name: Disable SELinux
+  selinux: policy=targeted state=disabled
+
+- name: Allow node proxy to bind to port
+  capabilities: path=/usr/bin/node capability=cap_net_bind_service=+ep state=present
+
+- name: Add shadow group
+  group: name=shadow state=present
+
+- name: Allow shadow group to read from /etc/shadow
+  file: path=/etc/shadow group=shadow mode=0040
+
+- name: Create the rhea user
+  user: name=rhea group=jupyterhub groups=shadow createhome=yes
+
+
+
+- name: Create JupyterHub config dir
+  file: state=directory dest=/etc/jupyterhub owner=rhea group=jupyterhub
+
+- name: Configure JupyterHub
+  template: src=jupyterhub_config.py.j2 dest=/etc/jupyterhub/jupyterhub_config.py mode=0744 owner=rhea group=jupyterhub
+
+#- name: Ensure privileges on {{ anaconda_install_dir }} are correct
+#  file: state=directory mode=0755 owner=rhea group=jupyterhub recurse=yes path="{{ anaconda_install_dir }}"
 

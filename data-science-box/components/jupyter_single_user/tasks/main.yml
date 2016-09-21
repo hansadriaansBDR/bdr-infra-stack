@@ -1,9 +1,16 @@
-
+---
 
 - name: Check parameters
   assert:
     that:
       - anaconda_install_dir is defined
 
+- name: Allow  jupyter-notebook to bind to port
+  capabilities: path={{ anaconda_install_dir }}/bin/jupyter-notebook capability=cap_net_bind_service=+ep state=present
+
 - name: Install jupyter single user service
-  template: src= dest=/lib/systemd/system/jupyter.service mode=0644
+  template: src=jupyter.service.j2 dest=/lib/systemd/system/jupyter.service mode=0644
+  notify:
+    - daemon_reload
+    - restart_jupyter
+
