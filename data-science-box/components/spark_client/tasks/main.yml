@@ -1,0 +1,42 @@
+---
+
+- name: Check parameters
+  assert:
+    that:
+      - spark_client_version is defined
+      - spark_client_url is defined
+
+- name: Ensure Java 8 is installed
+  package: name=java-1.8.0-openjdk state=present
+
+- name: Purge current Spark client {{ spark_client_version }} installation
+  file: path={{ spark_client_install_dir }}/{{spark_client_version}} state=absent
+  when: spark_client_force_install
+
+- name: Check for current Spark client {{ spark_client_version }} installation
+  stat: path={{ spark_client_install_dir }}/{{ spark_client_version }}
+  register: spark_client_install
+
+
+- name: Create Spark client {{ spark_client_version }} install dir
+  file: state=directory dest={{ spark_client_install_dir }}/{{spark_client_version}} owner=rhea group=jupyterhub
+
+- name: Download Spark client {{ spark_client_version }}
+  get_url:
+    url: "{{ spark_client_url }}"
+    dest: "/tmp/spark-client-{{ spark_client_version }}.tgz"
+    mode: 0644
+  when: spark_client_install.stat.exists == False
+
+- name: Create current Spark client {{ spark_client_version }} install dir
+  file: path={{ spark_client_install_dir }}/{{spark_client_version}} state=directory
+  when: spark_client_install.stat.exists == False
+
+- name: Unpack Spark client {{ spark_client_version }} (unarchive strip components is bugged)
+  command: "tar --strip-components=1 -xf /tmp/spark-client-{{ spark_client_version }}.tgz -C {{ spark_client_install_dir }}/{{ spark_client_version }}"
+  when: spark_client_install.stat.exists == False
+
+- name: Ensure ownership + permissions on spark client dirs
+  file: path={{ spark_client_install_dir }}/{{spark_client_version}} recurse=yes state=directory owner=rhea group=jupyterhub mode=0744
+  when: spark_client_install.stat.exists == False
+

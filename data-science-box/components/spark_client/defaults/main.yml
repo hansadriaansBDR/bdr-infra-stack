@@ -1,0 +1,3 @@
+---
+spark_client_install_dir: /opt/spark-clients
+spark_client_force_install: False

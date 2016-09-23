@@ -32,6 +32,8 @@
     - monitoring
     - anaconda
     - jupyter_single_user
+    - { role: spark_client, spark_client_version: "1.6.2-hadoop-2.6", spark_client_url: "http://d3kbcqa49mib13.cloudfront.net/spark-1.6.2-bin-hadoop2.6.tgz"}
+    - { role: spark_client, spark_client_version: "2.0.0-hadoop-2.7", spark_client_url: "http://d3kbcqa49mib13.cloudfront.net/spark-2.0.0-bin-hadoop2.7.tgz"}
 
 #    - hadoop
 #    - spark
