@@ -10,6 +10,7 @@
  ],
  "env": {
     "SPARK_HOME": "{{ spark_client_home }}",
+    "PYSPARK_PYTHON": "{{ anaconda_install_dir }}/envs/{{ spark_client_conda_env }}/bin/python",
     "PYTHONPATH": "{{ spark_client_home }}/python/:{{ spark_client_py4j_path }}",
     "PYTHONSTARTUP": "{{ spark_client_home }}/python/pyspark/shell.py",
     "PYSPARK_SUBMIT_ARGS": "--master local[*] pyspark-shell --packages com.databricks:spark-csv_2.11:{{ spark_client_version.split('-')[0] }}"

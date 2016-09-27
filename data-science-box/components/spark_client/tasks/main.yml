@@ -47,11 +47,6 @@
   file: path=/usr/local/share/jupyter/kernels/spark-{{ spark_client_version }} state=absent
   when: spark_client_create_kernel == False
 
-- name: Check for existing Jupyter kernel {{ spark_client_version }}
-  stat: path=/usr/local/share/jupyter/kernels/spark-{{ spark_client_version }}
-  when: spark_client_create_kernel == True
-  register: spark_client_kernel
-
 - name: Get shipped py4j path
   find: paths="{{ spark_client_home }}/python/lib" use_regex=True patterns=".*py4j.*"
   register: tmp_out
@@ -61,10 +56,8 @@
 
 - name: Create Spark client {{ spark_client_version }} kernel dir
   file: state=directory dest=/usr/local/share/jupyter/kernels/spark-{{ spark_client_version }} owner=rhea group=jupyterhub
-  when: spark_client_create_kernel == True and anaconda_install_dir is defined and spark_client_kernel.stat.exists == False
+  when: spark_client_create_kernel == True and anaconda_install_dir is defined
 
 - name: Install Jupyter kernel {{ spark_client_version }}
   template: src=kernel.json.j2 dest="/usr/local/share/jupyter/kernels/spark-{{ spark_client_version }}/kernel.json"
-  when: spark_client_create_kernel == True and anaconda_install_dir is defined and spark_client_kernel.stat.exists == False
-
-
+  when: spark_client_create_kernel == True and anaconda_install_dir is defined
