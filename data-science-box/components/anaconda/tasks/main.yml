@@ -29,9 +29,10 @@
     state: present
 
 
-- name: Update conda extensions to latest version
-  command: conda update nb_conda nb_conda_kernels nb_anacondacloud
-  when: anaconda_install.stat.exists == False
+# Does not work when first started, todo: fix this later.
+#- name: Update conda extensions to latest version
+#  command: conda update nb_conda nb_conda_kernels nb_anacondacloud
+#  when: anaconda_install.stat.exists == False
 
 
 - name: Install nodejs
