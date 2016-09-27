@@ -1,41 +1,12 @@
 ---
-# List of available variables:
-#
-# This stack is based on hortonworks stack
-#
-# http://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.3.4/bk_installing_manually_book/content/index.html
-
-
 - hosts: bdr-data-science-box
   become: yes
-
-#  pre_tasks:
-#  - name: Download Hortonworks package list
-#    get_url:
-#      url=http://public-repo-1.hortonworks.com/HDP/ubuntu12/2.x/updates/2.3.4.0/hdp.list
-#      dest=/etc/apt/sources.list.d/hdp.list mode=0644
-#    register: hpl
-#
-#  - name: Add Hortonworks key
-#    apt_key: keyserver=keyserver.ubuntu.com id=B9733A7A07513CAD
-#    register: hpk
-#
-#  - name: Enforce apt cache update on Horton list or key changes
-#    apt: update_cache=true
-#    when: hpl.changed == true or hpk.changed == true
-#
-#  - name: Make sure that the apt cache is updated once per day
-#    apt: update_cache=yes cache_valid_time=86400
-
   roles:
     - repositories
     - monitoring
     - anaconda
     - jupyter_single_user
-    - { role: spark_client, spark_client_version: "1.6.2-hadoop-2.6", spark_client_url: "http://d3kbcqa49mib13.cloudfront.net/spark-1.6.2-bin-hadoop2.6.tgz"}
-    - { role: spark_client, spark_client_version: "2.0.0-hadoop-2.7", spark_client_url: "http://d3kbcqa49mib13.cloudfront.net/spark-2.0.0-bin-hadoop2.7.tgz"}
+    - { role: conda_env, conda_env_name: "2.7" }
+    - { role: spark_client, spark_client_create_kernel: True, spark_client_version: "1.6.2-hadoop-2.6", spark_client_url: "http://d3kbcqa49mib13.cloudfront.net/spark-1.6.2-bin-hadoop2.6.tgz"}
+    - { role: spark_client, spark_client_create_kernel: True, spark_client_version: "2.0.0-hadoop-2.7", spark_client_url: "http://d3kbcqa49mib13.cloudfront.net/spark-2.0.0-bin-hadoop2.7.tgz"}
 
-#    - hadoop
-#    - spark
-#    - r
-#    - python

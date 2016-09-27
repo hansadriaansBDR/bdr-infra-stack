@@ -1,0 +1,27 @@
+---
+
+- name: Check parameters
+  assert:
+    that:
+      - conda_env_name is defined
+      - anaconda_install_dir is defined
+
+- name: Load existing environments (1/2)
+  command: "conda info --envs --json"
+  register: tmp_out
+
+- name: Load existing environments (2/2)
+  set_fact:
+    conda_envs_present: "{{ (tmp_out.stdout | from_json).envs }}"
+
+
+- name: Install new environment {{ anaconda_install_dir}}/envs/{{ conda_env_name }}
+  command: 'conda create -y -q --json -n {{ conda_env_name }} {{ conda_env_interpreter }} ipykernel {{ conda_env_packages | join(" ") }}'
+  when: "(anaconda_install_dir ~ '/envs/' ~ conda_env_name) not in conda_envs_present and conda_env_base is not defined"
+
+#- name: Clone existing environment {{ conda_env_base }} to {{ anaconda_install_dir }}/envs/{{ conda_env_name }}
+#  command: 'conda create -y -q --json -n {{ conda_env_name }} --clone {{ conda_env_base }}'
+#  when: "(anaconda_install_dir ~ '/envs/' ~ conda_env_name) not in conda_envs_present and conda_env_base is defined"
+
+
+

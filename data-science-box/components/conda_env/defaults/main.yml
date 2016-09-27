@@ -1,0 +1,8 @@
+---
+conda_env_interpreter: "python=2"
+conda_env_packages:
+  - pandas
+  - numpy
+  - seaborn
+  - scikit-learn
+  - matplotlib

@@ -1,3 +1,5 @@
 ---
 spark_client_install_dir: /opt/spark-clients
 spark_client_force_install: False
+spark_client_create_kernel: False
+spark_client_conda_env: '2.7'
