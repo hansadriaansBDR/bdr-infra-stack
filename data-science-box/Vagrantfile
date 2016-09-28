@@ -14,6 +14,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "bdr-data-science-box", autostart: true do |vm|
       vm.vm.hostname = "bdr-data-science-box"
       vm.vm.network "private_network", ip: "10.0.0.42"
+      vm.vm.synced_folder "../../", "/mnt/projects",  :mount_options => ["dmode=644,fmode=644"]
 
       # Provision virtualbox:
       vm.vm.provider "virtualbox" do |vb|
